@@ -2,6 +2,7 @@ import os
 import unittest
 from __main__ import vtk, qt, ctk, slicer
 import Editor
+import SimpleITK as sitk
 
 #
 # WaistCircumference
@@ -272,6 +273,10 @@ class WaistCircumferenceLogic:
     annotationLogic = slicer.modules.annotations.logic()
     annotationLogic.CreateSnapShot(name, description, type, self.screenshotScaleFactor, imageData)
 
+  def calculateCircumference(self):
+    filter = sitk.LabelShapeStatisticsImageFilter()
+    print "running calculateCircumference"
+
   def run(self,inputVolume,outputVolume,enableScreenshots=0,screenshotScaleFactor=1):
     """
     Run the actual algorithm
@@ -283,6 +288,8 @@ class WaistCircumferenceLogic:
     self.screenshotScaleFactor = screenshotScaleFactor
 
     self.takeScreenshot('WaistCircumference-Start','Start',-1)
+    
+    self.calculateCircumference()
 
     return True
 
