@@ -1,6 +1,7 @@
 import os
 import unittest
 from __main__ import vtk, qt, ctk, slicer
+import Editor
 
 #
 # WaistCircumference
@@ -147,6 +148,11 @@ class WaistCircumferenceWidget:
     self.applyButton.toolTip = "Run the algorithm."
     self.applyButton.enabled = False
     parametersFormLayout.addRow(self.applyButton)
+
+    # Creates and adds the custom Editor Widget to the module
+    self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
+    self.localEditorWidget.setup()
+    self.localEditorWidget.enter()
 
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
