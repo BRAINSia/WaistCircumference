@@ -143,17 +143,29 @@ class WaistCircumferenceWidget:
     parametersFormLayout.addRow("Screenshot scale factor", self.screenshotScaleFactorSliderWidget)
 
     #
+    # Creates and adds the custom Editor Widget to the module
+    #
+    self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
+    self.localEditorWidget.setup()
+    self.localEditorWidget.enter()
+
+    #
+    # Measurements Area
+    #
+    measurementsCollapsibleButton = ctk.ctkCollapsibleButton()
+    measurementsCollapsibleButton.text = "Measurements"
+    self.layout.addWidget(measurementsCollapsibleButton)
+
+    # Layout within the dummy collapsible button
+    measurementsFormLayout = qt.QFormLayout(measurementsCollapsibleButton)
+
+    #
     # Apply Button
     #
     self.applyButton = qt.QPushButton("Apply")
     self.applyButton.toolTip = "Run the algorithm."
     self.applyButton.enabled = False
-    parametersFormLayout.addRow(self.applyButton)
-
-    # Creates and adds the custom Editor Widget to the module
-    self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
-    self.localEditorWidget.setup()
-    self.localEditorWidget.enter()
+    measurementsFormLayout.addRow(self.applyButton)
 
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
