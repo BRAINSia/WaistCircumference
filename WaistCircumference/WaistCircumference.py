@@ -156,7 +156,7 @@ class WaistCircumferenceWidget:
     measurementsCollapsibleButton.text = "Measurements"
     self.layout.addWidget(measurementsCollapsibleButton)
 
-    # Layout within the dummy collapsible button
+    # Layout within the Measurements collapsible button
     measurementsFormLayout = qt.QFormLayout(measurementsCollapsibleButton)
 
     #
@@ -176,7 +176,10 @@ class WaistCircumferenceWidget:
     self.layout.addStretch(1)
 
   def cleanup(self):
-    pass
+    # clears the mrml scene
+    slicer.mrmlScene.Clear(0)
+
+    self.localEditorWidget.exit()
 
   def onSelect(self):
     self.applyButton.enabled = self.inputSelector.currentNode() and self.outputSelector.currentNode()
@@ -193,6 +196,7 @@ class WaistCircumferenceWidget:
     ModuleWizard will subsitute correct default moduleName.
     """
     globals()[moduleName] = slicer.util.reloadScriptedModule(moduleName)
+    self.cleanup()
 
   def onReloadAndTest(self,moduleName="WaistCircumference"):
     try:
