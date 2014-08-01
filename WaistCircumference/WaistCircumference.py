@@ -176,10 +176,10 @@ class WaistCircumferenceWidget:
     self.layout.addStretch(1)
 
   def cleanup(self):
+    self.localEditorWidget.exit()
+
     # clears the mrml scene
     slicer.mrmlScene.Clear(0)
-
-    self.localEditorWidget.exit()
 
   def onSelect(self):
     self.applyButton.enabled = self.inputSelector.currentNode() and self.outputSelector.currentNode()
@@ -195,8 +195,9 @@ class WaistCircumferenceWidget:
     """Generic reload method for any scripted module.
     ModuleWizard will subsitute correct default moduleName.
     """
-    globals()[moduleName] = slicer.util.reloadScriptedModule(moduleName)
     self.cleanup()
+    globals()[moduleName] = slicer.util.reloadScriptedModule(moduleName)
+
 
   def onReloadAndTest(self,moduleName="WaistCircumference"):
     try:
