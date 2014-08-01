@@ -356,21 +356,23 @@ class WaistCircumferenceTest(unittest.TestCase):
     # first, get some data
     #
     import urllib
-    downloads = (
-        ('http://slicer.kitware.com/midas3/download?items=5767', 'FA.nrrd', slicer.util.loadVolume),
-        )
+    # downloads = (
+    #     ('http://slicer.kitware.com/midas3/download?items=5767', 'FA.nrrd', slicer.util.loadVolume),
+    #     )
+    #
+    # for url,name,loader in downloads:
+    #   filePath = slicer.app.temporaryPath + '/' + name
+    #   if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
+    #     print('Requesting download %s from %s...\n' % (name, url))
+    #     urllib.urlretrieve(url, filePath)
+    #   if loader:
+    #     print('Loading %s...\n' % (name,))
+    #     loader(filePath)
+    # self.delayDisplay('Finished with download and loading\n')
 
-    for url,name,loader in downloads:
-      filePath = slicer.app.temporaryPath + '/' + name
-      if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
-        print('Requesting download %s from %s...\n' % (name, url))
-        urllib.urlretrieve(url, filePath)
-      if loader:
-        print('Loading %s...\n' % (name,))
-        loader(filePath)
-    self.delayDisplay('Finished with download and loading\n')
+    slicer.util.loadVolume('/scratch/WaistCircumference/2AbdPelvis5.nrrd')
 
-    volumeNode = slicer.util.getNode(pattern="FA")
+    volumeNode = slicer.util.getNode(pattern="2AbdPelvis5")
     logic = WaistCircumferenceLogic()
     self.assertTrue( logic.hasImageData(volumeNode) )
     self.delayDisplay('Test passed!')
