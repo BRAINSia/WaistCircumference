@@ -3,6 +3,7 @@ import unittest
 from __main__ import vtk, qt, ctk, slicer
 import Editor
 import SimpleITK as sitk
+import sitkUtils as su
 
 #
 # WaistCircumference
@@ -291,8 +292,13 @@ class WaistCircumferenceLogic:
     annotationLogic.CreateSnapShot(name, description, type, self.screenshotScaleFactor, imageData)
 
   def calculateCircumference(self):
-    filter = sitk.LabelShapeStatisticsImageFilter()
-    print "running calculateCircumference"
+    label3D = su.PullFromSlicer('*-label')
+    img2D = label3D[:, :, 41]
+    filter2D = sitk.LabelShapeStatisticsImageFilter()
+    filter2D.Execute(img2D)
+    labelList = filter2D.GetLabels()
+    for labelValue in labelList:
+        print "Label {0}: {1} mm".format(labelValue, filter2D.GetPerimeter(labelValue))
 
   def run(self,inputVolume,outputVolume,enableScreenshots=0,screenshotScaleFactor=1):
     """
