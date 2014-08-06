@@ -183,7 +183,7 @@ class WaistCircumferenceWidget:
     slicer.mrmlScene.Clear(0)
 
   def onSelect(self):
-    self.applyButton.enabled = self.inputSelector.currentNode() and self.outputSelector.currentNode()
+    self.applyButton.enabled = self.inputSelector.currentNode()
 
   def onApplyButton(self):
     logic = WaistCircumferenceLogic()
@@ -198,7 +198,6 @@ class WaistCircumferenceWidget:
     """
     self.cleanup()
     globals()[moduleName] = slicer.util.reloadScriptedModule(moduleName)
-
 
   def onReloadAndTest(self,moduleName="WaistCircumference"):
     try:
@@ -349,6 +348,7 @@ class WaistCircumferenceTest(unittest.TestCase):
     """
     self.setUp()
     self.test_WaistCircumference1()
+    self.test_WaistCircumference2()
 
   def test_WaistCircumference1(self):
     """ Ideally you should have several levels of tests.  At the lowest level
@@ -396,3 +396,18 @@ class WaistCircumferenceTest(unittest.TestCase):
     self.assertTrue( logic.hasImageData(labelNode) )
     self.delayDisplay('Test label image loaded')
     self.delayDisplay('Test 1 passed!')
+
+  def test_WaistCircumference2(self):
+    self.delayDisplay("Starting Test 2")
+    try:
+      widget = slicer.modules.WaistCircumferenceWidget
+      self.delayDisplay("Opened WaistCircumferenceWidget")
+
+      widget.onApplyButton()
+      self.delayDisplay("Apply button selected")
+
+      self.delayDisplay('Test 2 passed!')
+    except Exception, e:
+      import traceback
+      traceback.print_exc()
+      self.delayDisplay('Test caused exception!\n' + str(e))
