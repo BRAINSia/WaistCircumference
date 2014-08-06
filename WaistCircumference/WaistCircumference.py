@@ -239,7 +239,7 @@ class WaistCircumferenceLogic:
       return False
     return True
 
-  def delayDisplay(self,message,msec=1000):
+  def delayDisplay(self,message,msec=2000):
     #
     # logic version of delay display
     #
@@ -356,7 +356,7 @@ class WaistCircumferenceTest(unittest.TestCase):
     your test should break so they know that the feature is needed.
     """
 
-    self.delayDisplay("Starting the test")
+    self.delayDisplay("Starting Test 1")
     #
     # first, get some data
     #
@@ -375,9 +375,18 @@ class WaistCircumferenceTest(unittest.TestCase):
     #     loader(filePath)
     # self.delayDisplay('Finished with download and loading\n')
 
-    slicer.util.loadVolume('/scratch/WaistCircumference/2AbdPelvis5.nrrd')
+    imagePath = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
+    labelPath = "/Shared/johnsonhj/HDNI/20140527_WaistCircumfrenceProject/20140529_Jessica_Test_Data/2AbdPelvis5-label.nrrd"
+    slicer.util.loadVolume(imagePath)
+    slicer.util.loadLabelVolume(labelPath)
 
     volumeNode = slicer.util.getNode(pattern="2AbdPelvis5")
     logic = WaistCircumferenceLogic()
     self.assertTrue( logic.hasImageData(volumeNode) )
-    self.delayDisplay('Test passed!')
+    self.delayDisplay('Test volume image loaded')
+
+    labelNode = slicer.util.getNode(pattern="2AbdPelvis5-label")
+    logic = WaistCircumferenceLogic()
+    self.assertTrue( logic.hasImageData(labelNode) )
+    self.delayDisplay('Test label image loaded')
+    self.delayDisplay('Test 1 passed!')
