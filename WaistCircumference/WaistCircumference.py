@@ -290,14 +290,49 @@ class WaistCircumferenceLogic:
     annotationLogic = slicer.modules.annotations.logic()
     annotationLogic.CreateSnapShot(name, description, type, self.screenshotScaleFactor, imageData)
 
+  def rasToXY(self, rasPoint, sliceLogic):
+    sliceNode = sliceLogic.GetSliceNode()
+    rasToXY = vtk.vtkMatrix4x4()
+    rasToXY.DeepCopy(sliceNode.GetXYToRAS())
+    rasToXY.Invert()
+    xyzw = rasToXY.MultiplyPoint(rasPoint + (1,))
+    return (int(round(xyzw[0])), int(round(xyzw[1])))
+
+  def xyToIJK(self, xy, sliceLogic):
+    labelLogic = sliceLogic.GetLabelLayer()
+    XYToIJK = labelLogic.GetXYToIJKTransform()
+    ijk = XYToIJK.TransformDoublePoint(xy + (0,))
+    ijk = map(lambda v: int(round(v)), ijk)
+    return ijk
+
+  def getRASFromSliceOffset(self, sliceLogic):
+    labelLogic = sliceLogic.GetLabelLayer()
+    labelNode = labelLogic.GetSliceNode()
+    sliceOffset = labelNode.GetSliceOffset()
+    ras = (0, 0, sliceOffset)
+    return ras
+
+  def getCurrentSlice(self):
+    lm = slicer.app.layoutManager()
+    sliceWidget = lm.sliceWidget('Red')
+    sliceLogic = sliceWidget.sliceLogic()
+
+    ras = self.getRASFromSliceOffset(sliceLogic)
+    xy = self.rasToXY(ras, sliceLogic)
+    ijk = self.xyToIJK(xy, sliceLogic)
+
+    currentSlice = ijk[2]
+    return currentSlice
+
   def calculateCircumference(self):
     label3D = su.PullFromSlicer('*-label')
-    img2D = label3D[:, :, 41]
+    currentSlice = self.getCurrentSlice()
+    img2D = label3D[:, :, currentSlice]
     filter2D = sitk.LabelShapeStatisticsImageFilter()
     filter2D.Execute(img2D)
     labelList = filter2D.GetLabels()
     for labelValue in labelList:
-        print "Label {0}: {1} mm".format(labelValue, filter2D.GetPerimeter(labelValue))
+      print "Label {0}: {1} mm".format(labelValue, filter2D.GetPerimeter(labelValue))
 
   def run(self,inputVolume,outputVolume,enableScreenshots=0,screenshotScaleFactor=1):
     """
