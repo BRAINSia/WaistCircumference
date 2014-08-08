@@ -149,6 +149,7 @@ class WaistCircumferenceWidget:
     self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
     self.localEditorWidget.setup()
     self.localEditorWidget.enter()
+    self.helper = self.localEditorWidget.helper
 
     #
     # Measurements Area
@@ -175,7 +176,7 @@ class WaistCircumferenceWidget:
 
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
-    self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
+    self.helper.masterSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
     self.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
 
     # Add vertical spacer
@@ -188,7 +189,7 @@ class WaistCircumferenceWidget:
     slicer.mrmlScene.Clear(0)
 
   def onSelect(self):
-    self.applyButton.enabled = self.inputSelector.currentNode()
+    self.applyButton.enabled = self.helper.masterSelector.currentNode()
 
   def onApplyButton(self):
     self.logic = WaistCircumferenceLogic()
@@ -201,7 +202,7 @@ class WaistCircumferenceWidget:
   def populateStats(self):
     if not self.logic:
       return
-    displayNode = self.localEditorWidget.helper.merge.GetDisplayNode()
+    displayNode = self.helper.merge.GetDisplayNode()
     colorNode = displayNode.GetColorNode()
     lut = colorNode.GetLookupTable()
     self.items = []
