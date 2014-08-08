@@ -168,6 +168,11 @@ class WaistCircumferenceWidget:
     self.applyButton.enabled = False
     measurementsFormLayout.addRow(self.applyButton)
 
+    # model and view for stats table
+    self.view = qt.QTableView()
+    self.view.sortingEnabled = True
+    measurementsFormLayout.addWidget(self.view)
+
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
