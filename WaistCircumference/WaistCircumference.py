@@ -109,22 +109,6 @@ class WaistCircumferenceWidget:
     parametersFormLayout.addRow("Input Volume: ", self.inputSelector)
 
     #
-    # output volume selector
-    #
-    self.outputSelector = slicer.qMRMLNodeComboBox()
-    self.outputSelector.nodeTypes = ( ("vtkMRMLScalarVolumeNode"), "" )
-    self.outputSelector.addAttribute( "vtkMRMLScalarVolumeNode", "LabelMap", 0 )
-    self.outputSelector.selectNodeUponCreation = False
-    self.outputSelector.addEnabled = True
-    self.outputSelector.removeEnabled = True
-    self.outputSelector.noneEnabled = False
-    self.outputSelector.showHidden = False
-    self.outputSelector.showChildNodeTypes = False
-    self.outputSelector.setMRMLScene( slicer.mrmlScene )
-    self.outputSelector.setToolTip( "Pick the output to the algorithm." )
-    parametersFormLayout.addRow("Output Volume: ", self.outputSelector)
-
-    #
     # check box to trigger taking screen shots for later use in tutorials
     #
     self.enableScreenshotsFlagCheckBox = qt.QCheckBox()
@@ -177,7 +161,6 @@ class WaistCircumferenceWidget:
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.helper.masterSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
-    self.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
 
     # Add vertical spacer
     self.layout.addStretch(1)
@@ -196,7 +179,7 @@ class WaistCircumferenceWidget:
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     screenshotScaleFactor = int(self.screenshotScaleFactorSliderWidget.value)
     print("Run the algorithm")
-    self.logic.run(self.inputSelector.currentNode(), self.outputSelector.currentNode(), enableScreenshotsFlag,screenshotScaleFactor)
+    self.logic.run(self.inputSelector.currentNode(), enableScreenshotsFlag,screenshotScaleFactor)
     self.populateStats()
 
   def populateStats(self):
@@ -383,7 +366,7 @@ class WaistCircumferenceLogic:
       self.labelStats[int(labelValue), self.keys[0]] = int(labelValue)
       self.labelStats[int(labelValue), self.keys[1]] = filter2D.GetPerimeter(labelValue)
 
-  def run(self,inputVolume,outputVolume,enableScreenshots=0,screenshotScaleFactor=1):
+  def run(self,inputVolume,enableScreenshots=0,screenshotScaleFactor=1):
     """
     Run the actual algorithm
     """
