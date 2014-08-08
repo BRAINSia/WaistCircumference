@@ -218,24 +218,24 @@ class WaistCircumferenceWidget:
       item.setToolTip(colorNode.GetColorName(i))
       self.model.setItem(row,0,item)
       self.items.append(item)
-      # col = 1
-      # for k in self.logic.keys:
-      #   item = qt.QStandardItem()
-      #   # set data as float with Qt::DisplayRole
-      #   item.setData(float(self.logic.labelStats[i,k]),qt.Qt.DisplayRole)
-      #   item.setToolTip(colorNode.GetColorName(i))
-      #   self.model.setItem(row,col,item)
-      #   self.items.append(item)
-      #   col += 1
+      col = 1
+      for k in self.logic.keys:
+        item = qt.QStandardItem()
+        # set data as float with Qt::DisplayRole
+        item.setData(float(self.logic.labelStats[i,k]),qt.Qt.DisplayRole)
+        item.setToolTip(colorNode.GetColorName(i))
+        self.model.setItem(row,col,item)
+        self.items.append(item)
+        col += 1
       row += 1
 
-    # self.view.setColumnWidth(0,30)
-    # self.model.setHeaderData(0,1," ")
-    # col = 1
-    # for k in self.logic.keys:
-    #   self.view.setColumnWidth(col,15*len(k))
-    #   self.model.setHeaderData(col,1,k)
-    #   col += 1
+    self.view.setColumnWidth(0,30)
+    self.model.setHeaderData(0,1," ")
+    col = 1
+    for k in self.logic.keys:
+      self.view.setColumnWidth(col,15*len(k))
+      self.model.setHeaderData(col,1,k)
+      col += 1
 
   def onReload(self,moduleName="WaistCircumference"):
     """Generic reload method for any scripted module.
@@ -379,7 +379,7 @@ class WaistCircumferenceLogic:
     filter2D.Execute(img2D)
     self.labelStats['Labels'] = filter2D.GetLabels()
     for labelValue in self.labelStats['Labels']:
-      print "Label {0}: {1} mm".format(labelValue, filter2D.GetPerimeter(labelValue))
+      self.labelStats[int(labelValue), self.keys[0]] = int(labelValue)
       self.labelStats[int(labelValue), self.keys[1]] = filter2D.GetPerimeter(labelValue)
 
   def run(self,inputVolume,outputVolume,enableScreenshots=0,screenshotScaleFactor=1):
