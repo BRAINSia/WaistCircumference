@@ -269,6 +269,7 @@ class WaistCircumferenceLogic:
   requiring an instance of the Widget
   """
   def __init__(self):
+    self.keys = ("Index", "Circumference mm")
     self.labelStats = {}
     self.labelStats['Labels'] = []
 
@@ -379,6 +380,7 @@ class WaistCircumferenceLogic:
     self.labelStats['Labels'] = filter2D.GetLabels()
     for labelValue in self.labelStats['Labels']:
       print "Label {0}: {1} mm".format(labelValue, filter2D.GetPerimeter(labelValue))
+      self.labelStats[int(labelValue), self.keys[1]] = filter2D.GetPerimeter(labelValue)
 
   def run(self,inputVolume,outputVolume,enableScreenshots=0,screenshotScaleFactor=1):
     """
