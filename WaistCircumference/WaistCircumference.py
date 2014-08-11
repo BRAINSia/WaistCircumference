@@ -159,6 +159,7 @@ class WaistCircumferenceWidget:
     self.applyButton.enabled = self.helper.masterSelector.currentNode()
 
   def onApplyButton(self):
+    self.localEditorWidget.toolsBox.selectEffect("DefaultTool")
     self.logic = WaistCircumferenceLogic()
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     screenshotScaleFactor = int(self.screenshotScaleFactorSliderWidget.value)
