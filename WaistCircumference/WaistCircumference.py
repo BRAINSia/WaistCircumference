@@ -448,25 +448,30 @@ class WaistCircumferenceTest(unittest.TestCase):
     #     loader(filePath)
     # self.delayDisplay('Finished with download and loading\n')
 
-    imagePath = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
-    labelPath = "/Shared/johnsonhj/HDNI/20140527_WaistCircumfrenceProject/20140529_Jessica_Test_Data/2AbdPelvis5-label.nrrd"
-    slicer.util.loadVolume(imagePath)
-    slicer.util.loadLabelVolume(labelPath)
+    try:
+      imagePath = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
+      labelPath = "/Shared/johnsonhj/HDNI/20140527_WaistCircumfrenceProject/20140529_Jessica_Test_Data/2AbdPelvis5-label.nrrd"
+      slicer.util.loadVolume(imagePath)
+      slicer.util.loadLabelVolume(labelPath)
 
-    volumeNode = slicer.util.getNode(pattern="2AbdPelvis5")
-    logic = WaistCircumferenceLogic()
-    self.assertTrue( logic.hasImageData(volumeNode) )
-    self.delayDisplay('Test volume image loaded')
+      volumeNode = slicer.util.getNode(pattern="2AbdPelvis5")
+      logic = WaistCircumferenceLogic()
+      self.assertTrue( logic.hasImageData(volumeNode) )
+      self.delayDisplay('Test volume image loaded')
 
-    labelNode = slicer.util.getNode(pattern="2AbdPelvis5-label")
-    logic = WaistCircumferenceLogic()
-    self.assertTrue( logic.hasImageData(labelNode) )
-    self.delayDisplay('Test label image loaded')
+      labelNode = slicer.util.getNode(pattern="2AbdPelvis5-label")
+      logic = WaistCircumferenceLogic()
+      self.assertTrue( logic.hasImageData(labelNode) )
+      self.delayDisplay('Test label image loaded')
 
-    widget = slicer.modules.WaistCircumferenceWidget
-    widget.helper.setMasterVolume(volumeNode)
-    self.delayDisplay('Test label image set as Master Volume')
-    self.delayDisplay('Test 1 passed!')
+      widget = slicer.modules.WaistCircumferenceWidget
+      widget.helper.setMasterVolume(volumeNode)
+      self.delayDisplay('Test label image set as Master Volume')
+      self.delayDisplay('Test 1 passed!')
+    except Exception, e:
+      import traceback
+      traceback.print_exc()
+      self.delayDisplay('Test caused exception!\n' + str(e))
 
   def test_WaistCircumference2(self):
     self.delayDisplay("Starting Test 2")
