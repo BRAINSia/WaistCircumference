@@ -202,7 +202,7 @@ class WaistCircumferenceWidget:
     self.model.setHeaderData(0,1," ")
     col = 1
     for k in self.logic.keys:
-      self.view.setColumnWidth(col,15*len(k))
+      self.view.setColumnWidth(col,10*len(k))
       self.model.setHeaderData(col,1,k)
       col += 1
 
@@ -255,7 +255,7 @@ class WaistCircumferenceLogic:
       return False
     return True
 
-  def delayDisplay(self,message,msec=2000):
+  def delayDisplay(self,message,msec=1000):
     #
     # logic version of delay display
     #
