@@ -462,6 +462,10 @@ class WaistCircumferenceTest(unittest.TestCase):
     logic = WaistCircumferenceLogic()
     self.assertTrue( logic.hasImageData(labelNode) )
     self.delayDisplay('Test label image loaded')
+
+    widget = slicer.modules.WaistCircumferenceWidget
+    widget.helper.setMasterVolume(volumeNode)
+    self.delayDisplay('Test label image set as Master Volume')
     self.delayDisplay('Test 1 passed!')
 
   def test_WaistCircumference2(self):
