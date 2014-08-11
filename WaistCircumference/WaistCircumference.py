@@ -93,22 +93,6 @@ class WaistCircumferenceWidget:
     parametersFormLayout = qt.QFormLayout(parametersCollapsibleButton)
 
     #
-    # input volume selector
-    #
-    self.inputSelector = slicer.qMRMLNodeComboBox()
-    self.inputSelector.nodeTypes = ( ("vtkMRMLScalarVolumeNode"), "" )
-    self.inputSelector.addAttribute( "vtkMRMLScalarVolumeNode", "LabelMap", 0 )
-    self.inputSelector.selectNodeUponCreation = True
-    self.inputSelector.addEnabled = False
-    self.inputSelector.removeEnabled = False
-    self.inputSelector.noneEnabled = False
-    self.inputSelector.showHidden = False
-    self.inputSelector.showChildNodeTypes = False
-    self.inputSelector.setMRMLScene( slicer.mrmlScene )
-    self.inputSelector.setToolTip( "Pick the input to the algorithm." )
-    parametersFormLayout.addRow("Input Volume: ", self.inputSelector)
-
-    #
     # check box to trigger taking screen shots for later use in tutorials
     #
     self.enableScreenshotsFlagCheckBox = qt.QCheckBox()
@@ -179,7 +163,7 @@ class WaistCircumferenceWidget:
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     screenshotScaleFactor = int(self.screenshotScaleFactorSliderWidget.value)
     print("Run the algorithm")
-    self.logic.run(self.inputSelector.currentNode(), enableScreenshotsFlag,screenshotScaleFactor)
+    self.logic.run(enableScreenshotsFlag,screenshotScaleFactor)
     self.populateStats()
 
   def populateStats(self):
@@ -366,7 +350,7 @@ class WaistCircumferenceLogic:
       self.labelStats[int(labelValue), self.keys[0]] = int(labelValue)
       self.labelStats[int(labelValue), self.keys[1]] = filter2D.GetPerimeter(labelValue)
 
-  def run(self,inputVolume,enableScreenshots=0,screenshotScaleFactor=1):
+  def run(self,enableScreenshots=0,screenshotScaleFactor=1):
     """
     Run the actual algorithm
     """
