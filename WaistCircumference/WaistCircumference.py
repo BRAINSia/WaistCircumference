@@ -50,6 +50,8 @@ class WaistCircumferenceWidget:
     else:
       self.parent = parent
     self.layout = self.parent.layout()
+    self.fileDialog = None
+    self.logic = None
     if not parent:
       self.setup()
       self.parent.show()
@@ -142,8 +144,17 @@ class WaistCircumferenceWidget:
     self.view.sortingEnabled = True
     measurementsFormLayout.addWidget(self.view)
 
+    #
+    # Save Button
+    #
+    self.saveButton = qt.QPushButton("Save")
+    self.saveButton.toolTip = "Save statistics to csv and save mrml scene."
+    self.saveButton.enabled = False
+    measurementsFormLayout.addRow(self.saveButton)
+
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
+    self.saveButton.connect('clicked(bool)', self.onSave)
     self.helper.masterSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
 
     # Add vertical spacer
@@ -166,6 +177,7 @@ class WaistCircumferenceWidget:
     print("Run the algorithm")
     self.logic.run(enableScreenshotsFlag,screenshotScaleFactor)
     self.populateStats()
+    self.saveButton.enabled = True
 
   def populateStats(self):
     if not self.logic:
@@ -205,6 +217,26 @@ class WaistCircumferenceWidget:
       self.view.setColumnWidth(col,10*len(k))
       self.model.setHeaderData(col,1,k)
       col += 1
+
+  def onSave(self):
+      """save the label statistics
+      """
+      if not self.fileDialog:
+          self.fileDialog = qt.QFileDialog(self.parent)
+          self.fileDialog.options = self.fileDialog.DontUseNativeDialog
+          self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
+          self.fileDialog.fileMode = self.fileDialog.DirectoryOnly
+          self.fileDialog.connect("fileSelected(QString)", self.onDirSelected)
+      self.fileDialog.show()
+
+  def onDirSelected(self, dirName):
+      # saves the current scene to selected folder
+      l = slicer.app.applicationLogic()
+      l.SaveSceneToSlicerDataBundleDirectory(dirName, None)
+
+      # saves the csv files to selected folder
+      csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(os.path.split(dirName)[1]))
+      self.logic.saveStats(csvFileName)
 
   def onReload(self,moduleName="WaistCircumference"):
     """Generic reload method for any scripted module.
@@ -354,6 +386,29 @@ class WaistCircumferenceLogic:
 
   def mmToInch(self, val):
     return val * 0.03937
+
+  def statsAsCSV(self):
+    """
+    print comma separated value file with header keys in quotes
+    """
+    csv = ""
+    header = ""
+    for k in self.keys[:-1]:
+      header += "\"%s\"" % k + ","
+    header += "\"%s\"" % self.keys[-1] + "\n"
+    csv = header
+    for i in self.labelStats["Labels"]:
+      line = ""
+      for k in self.keys[:-1]:
+        line += str(self.labelStats[i,k]) + ","
+      line += str(self.labelStats[i,self.keys[-1]]) + "\n"
+      csv += line
+    return csv
+
+  def saveStats(self,fileName):
+    fp = open(fileName, "w")
+    fp.write(self.statsAsCSV())
+    fp.close()
 
   def run(self,enableScreenshots=0,screenshotScaleFactor=1):
     """
