@@ -260,6 +260,10 @@ class WaistCircumferenceWidget:
     for path in self.imageFileList:
       if os.path.exists(path):
         slicer.util.loadVolume(path)
+        _, fileName = os.path.split(path)
+        pattern, _ = fileName.split('.')
+        volumeNode = slicer.util.getNode(pattern=pattern)
+        self.helper.setMasterVolume(volumeNode)
 
   def onSave(self):
     """save the label statistics
