@@ -51,6 +51,7 @@ class WaistCircumferenceWidget:
       self.parent = parent
     self.layout = self.parent.layout()
     self.fileDialog = None
+    self.imageFileListPath = None
     self.logic = None
     if not parent:
       self.setup()
@@ -114,6 +115,13 @@ class WaistCircumferenceWidget:
     parametersFormLayout.addRow("Screenshot scale factor", self.screenshotScaleFactorSliderWidget)
 
     #
+    # Select Image List Button
+    #
+    self.selectImageListButton = qt.QPushButton("Select Image List")
+    self.selectImageListButton.toolTip = "Select an image list in the form of absolute paths"
+    parametersFormLayout.addRow(self.selectImageListButton)
+
+    #
     # Creates and adds the custom Editor Widget to the module
     #
     self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
@@ -154,6 +162,7 @@ class WaistCircumferenceWidget:
     measurementsFormLayout.addRow(self.saveButton)
 
     # connections
+    self.selectImageListButton.connect('clicked(bool)', self.onSelectImageList)
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.saveButton.connect('clicked(bool)', self.onSave)
     self.helper.masterSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
@@ -220,6 +229,22 @@ class WaistCircumferenceWidget:
       self.view.setColumnWidth(col,10*len(k))
       self.model.setHeaderData(col,1,k)
       col += 1
+
+  def onSelectImageList(self):
+    """load the file containing a list absolute paths to images
+    """
+    if not self.fileDialog:
+      self.fileDialog = qt.QFileDialog(self.parent)
+      self.fileDialog.options = self.fileDialog.DontUseNativeDialog
+      self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
+      self.fileDialog.defaultSuffix = "csv"
+      self.fileDialog.setNameFilter("Comma Separated Values (*.csv)")
+      self.fileDialog.connect("fileSelected(QString)", self.onFileSelected)
+    self.fileDialog.show()
+
+  def onFileSelected(self, fileName):
+    self.imageFileListPath = fileName
+    print fileName
 
   def onSave(self):
       """save the label statistics
