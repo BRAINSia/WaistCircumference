@@ -52,6 +52,7 @@ class WaistCircumferenceWidget:
     self.layout = self.parent.layout()
     self.fileDialog = None
     self.imageFileListPath = None
+    self.dirDialog = None
     self.logic = None
     if not parent:
       self.setup()
@@ -247,24 +248,24 @@ class WaistCircumferenceWidget:
     print fileName
 
   def onSave(self):
-      """save the label statistics
-      """
-      if not self.fileDialog:
-          self.fileDialog = qt.QFileDialog(self.parent)
-          self.fileDialog.options = self.fileDialog.DontUseNativeDialog
-          self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
-          self.fileDialog.fileMode = self.fileDialog.DirectoryOnly
-          self.fileDialog.connect("fileSelected(QString)", self.onDirSelected)
-      self.fileDialog.show()
+    """save the label statistics
+    """
+    if not self.dirDialog:
+      self.dirDialog = qt.QFileDialog(self.parent)
+      self.dirDialog.options = self.dirDialog.DontUseNativeDialog
+      self.dirDialog.acceptMode = self.dirDialog.AcceptOpen
+      self.dirDialog.fileMode = self.dirDialog.DirectoryOnly
+      self.dirDialog.connect("fileSelected(QString)", self.onDirSelected)
+    self.dirDialog.show()
 
   def onDirSelected(self, dirName):
-      # saves the current scene to selected folder
-      l = slicer.app.applicationLogic()
-      l.SaveSceneToSlicerDataBundleDirectory(dirName, None)
+    # saves the current scene to selected folder
+    l = slicer.app.applicationLogic()
+    l.SaveSceneToSlicerDataBundleDirectory(dirName, None)
 
-      # saves the csv files to selected folder
-      csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(os.path.split(dirName)[1]))
-      self.logic.saveStats(csvFileName)
+    # saves the csv files to selected folder
+    csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(os.path.split(dirName)[1]))
+    self.logic.saveStats(csvFileName)
 
   def installShortcutKeys(self):
     """Turn on module-wide shortcuts.  These are active independent
