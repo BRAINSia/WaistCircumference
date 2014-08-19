@@ -119,6 +119,7 @@ class WaistCircumferenceWidget:
     self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
     self.localEditorWidget.setup()
     self.localEditorWidget.enter()
+    self.installShortcutKeys()
     self.helper = self.localEditorWidget.helper
 
     #
@@ -240,25 +241,11 @@ class WaistCircumferenceWidget:
       self.logic.saveStats(csvFileName)
 
   def installShortcutKeys(self):
-    """Turn on editor-wide shortcuts.  These are active independent
+    """Turn on module-wide shortcuts.  These are active independent
     of the currently selected effect."""
-    Key_Escape = 0x01000000 # not in PythonQt
-    Key_Space = 0x20 # not in PythonQt
     self.shortcuts = []
     keysAndCallbacks = (
-        ('e', self.editUtil.toggleLabel),
-        ('z', self.toolsBox.undoRedo.undo),
-        ('y', self.toolsBox.undoRedo.redo),
-        ('h', self.editUtil.toggleCrosshair),
-        ('o', self.editUtil.toggleLabelOutline),
-        ('t', self.editUtil.toggleForegroundBackground),
-        (Key_Escape, self.toolsBox.defaultEffect),
-        ('p', lambda : self.toolsBox.selectEffect('PaintEffect')),
-        ('d', lambda : self.toolsBox.selectEffect('DrawEffect')),
-        ('w', lambda : self.toolsBox.selectEffect('WandEffect')),
-        ('r', lambda : self.toolsBox.selectEffect('RectangleEffect')),
-        ('c', self.toolsColor.showColorBox),
-        (Key_Space, self.toolsBox.toggleFloatingMode),
+        ('l', lambda : self.localEditorWidget.toolsBox.selectEffect('LevelTracingEffect')),
         )
     for key,callback in keysAndCallbacks:
       shortcut = qt.QShortcut(slicer.util.mainWindow())
