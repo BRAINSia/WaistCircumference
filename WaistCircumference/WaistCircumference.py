@@ -163,6 +163,7 @@ class WaistCircumferenceWidget:
 
   def cleanup(self):
     self.localEditorWidget.exit()
+    self.removeShortcutKeys()
 
     # clears the mrml scene
     slicer.mrmlScene.Clear(0)
