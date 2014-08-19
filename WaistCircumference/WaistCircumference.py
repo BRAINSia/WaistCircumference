@@ -175,7 +175,8 @@ class WaistCircumferenceWidget:
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     screenshotScaleFactor = int(self.screenshotScaleFactorSliderWidget.value)
     print("Run the algorithm")
-    self.logic.run(enableScreenshotsFlag,screenshotScaleFactor)
+    self.logic.run(self.helper.master, self.helper.merge,
+                   enableScreenshotsFlag, screenshotScaleFactor)
     self.populateStats()
     self.saveButton.enabled = True
 
@@ -372,8 +373,8 @@ class WaistCircumferenceLogic:
     currentSlice = ijk[2]
     return currentSlice
 
-  def calculateCircumference(self):
-    label3D = su.PullFromSlicer('*-label')
+  def calculateCircumference(self, merge):
+    label3D = su.PullFromSlicer(merge.GetName())
     currentSlice = self.getCurrentSlice()
     img2D = label3D[:, :, currentSlice]
     filter2D = sitk.LabelShapeStatisticsImageFilter()
@@ -410,7 +411,7 @@ class WaistCircumferenceLogic:
     fp.write(self.statsAsCSV())
     fp.close()
 
-  def run(self,enableScreenshots=0,screenshotScaleFactor=1):
+  def run(self, master, merge, enableScreenshots=0, screenshotScaleFactor=1):
     """
     Run the actual algorithm
     """
@@ -422,7 +423,7 @@ class WaistCircumferenceLogic:
 
     self.takeScreenshot('WaistCircumference-Start','Start',-1)
     
-    self.calculateCircumference()
+    self.calculateCircumference(merge)
 
     return True
 
