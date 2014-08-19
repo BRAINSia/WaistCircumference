@@ -239,6 +239,39 @@ class WaistCircumferenceWidget:
       csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(os.path.split(dirName)[1]))
       self.logic.saveStats(csvFileName)
 
+  def installShortcutKeys(self):
+    """Turn on editor-wide shortcuts.  These are active independent
+    of the currently selected effect."""
+    Key_Escape = 0x01000000 # not in PythonQt
+    Key_Space = 0x20 # not in PythonQt
+    self.shortcuts = []
+    keysAndCallbacks = (
+        ('e', self.editUtil.toggleLabel),
+        ('z', self.toolsBox.undoRedo.undo),
+        ('y', self.toolsBox.undoRedo.redo),
+        ('h', self.editUtil.toggleCrosshair),
+        ('o', self.editUtil.toggleLabelOutline),
+        ('t', self.editUtil.toggleForegroundBackground),
+        (Key_Escape, self.toolsBox.defaultEffect),
+        ('p', lambda : self.toolsBox.selectEffect('PaintEffect')),
+        ('d', lambda : self.toolsBox.selectEffect('DrawEffect')),
+        ('w', lambda : self.toolsBox.selectEffect('WandEffect')),
+        ('r', lambda : self.toolsBox.selectEffect('RectangleEffect')),
+        ('c', self.toolsColor.showColorBox),
+        (Key_Space, self.toolsBox.toggleFloatingMode),
+        )
+    for key,callback in keysAndCallbacks:
+      shortcut = qt.QShortcut(slicer.util.mainWindow())
+      shortcut.setKey( qt.QKeySequence(key) )
+      shortcut.connect( 'activated()', callback )
+      self.shortcuts.append(shortcut)
+
+  def removeShortcutKeys(self):
+    for shortcut in self.shortcuts:
+      shortcut.disconnect('activated()')
+      shortcut.setParent(None)
+    self.shortcuts = []
+
   def onReload(self,moduleName="WaistCircumference"):
     """Generic reload method for any scripted module.
     ModuleWizard will subsitute correct default moduleName.
@@ -426,7 +459,6 @@ class WaistCircumferenceLogic:
     self.calculateCircumference(merge)
 
     return True
-
 
 class WaistCircumferenceTest(unittest.TestCase):
   """
