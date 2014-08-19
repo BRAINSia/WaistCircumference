@@ -246,6 +246,7 @@ class WaistCircumferenceWidget:
   def onFileSelected(self, fileName):
     self.imageFileListPath = fileName
     self.readImageFileList()
+    self.loadImage()
 
   def readImageFileList(self):
     if self.imageFileListPath:
@@ -254,6 +255,11 @@ class WaistCircumferenceWidget:
         for row in imageList:
           self.imageFileList.append(row.rstrip())
       print self.imageFileList
+
+  def loadImage(self):
+    for path in self.imageFileList:
+      if os.path.exists(path):
+        slicer.util.loadVolume(path)
 
   def onSave(self):
     """save the label statistics
