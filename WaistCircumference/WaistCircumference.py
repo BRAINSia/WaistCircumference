@@ -51,7 +51,7 @@ class WaistCircumferenceWidget:
       self.parent = parent
     self.layout = self.parent.layout()
     self.fileDialog = None
-    self.imageFileListPath = None
+    self.imageFileListPath = '/scratch/WaistCircumference/volumesList.csv'
     self.dirDialog = None
     self.logic = None
     if not parent:
@@ -245,7 +245,15 @@ class WaistCircumferenceWidget:
 
   def onFileSelected(self, fileName):
     self.imageFileListPath = fileName
-    print fileName
+    self.readImageFileList()
+
+  def readImageFileList(self):
+    if self.imageFileListPath:
+      self.imageFileList = list()
+      with open(self.imageFileListPath, 'rU') as imageList:
+        for row in imageList:
+          self.imageFileList.append(row.rstrip())
+      print self.imageFileList
 
   def onSave(self):
     """save the label statistics
