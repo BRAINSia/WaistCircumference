@@ -246,6 +246,8 @@ class WaistCircumferenceWidget:
     self.shortcuts = []
     keysAndCallbacks = (
         ('l', lambda : self.localEditorWidget.toolsBox.selectEffect('LevelTracingEffect')),
+        ('a', lambda : self.onApplyButton()),
+        ('s', lambda : self.onSave()),
         )
     for key,callback in keysAndCallbacks:
       shortcut = qt.QShortcut(slicer.util.mainWindow())
