@@ -257,13 +257,24 @@ class WaistCircumferenceWidget:
       print self.imageFileList
 
   def loadImage(self):
-    for path in self.imageFileList:
+    for path in self.imageFileList[:1]:
       if os.path.exists(path):
         slicer.util.loadVolume(path)
         _, fileName = os.path.split(path)
         pattern, _ = fileName.split('.')
-        volumeNode = slicer.util.getNode(pattern=pattern)
-        self.helper.setMasterVolume(volumeNode)
+        masterVolumeNode = slicer.util.getNode(pattern=pattern)
+        self.helper.master = masterVolumeNode
+        try:
+          self.helper.createMerge() # an error will be thrown:
+          # AttributeError: 'HelperBox' object has no attribute 'colorSelector'
+          # but it will still still create the merge image
+        except Exception, e:
+          import traceback
+          traceback.print_exc()
+          qt.QMessageBox.warning(slicer.util.mainWindow(),
+              "Create merge throwing error", 'Exception!\n\n' + str(e) + "\n\nSee Python Console for Stack Trace")
+        mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+        self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
 
   def onSave(self):
     """save the label statistics
