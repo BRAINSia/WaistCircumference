@@ -621,10 +621,24 @@ class WaistCircumferenceTest(unittest.TestCase):
   def test_WaistCircumference3(self):
     self.delayDisplay("Starting Test 3")
     try:
-      imagePath = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
+      path = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
       widget = slicer.modules.WaistCircumferenceWidget
-      widget.loadImage(imagePath)
-      self.delayDisplay('Opened image, created label, set input volumes')
+      widget.loadImage(path)
+      pattern = widget.getNodePatternFromPath(path)
+      masterVolumeNode = slicer.util.getNode(pattern=pattern)
+      logic = WaistCircumferenceLogic()
+      self.assertTrue( logic.hasImageData(masterVolumeNode) )
+      self.delayDisplay('Test master volume image loaded')
+
+      widget.helper.master = masterVolumeNode
+      widget.createMerge()
+      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+      logic = WaistCircumferenceLogic()
+      self.assertTrue( logic.hasImageData(mergeVolumeNode) )
+      self.delayDisplay('Test merge volume image loaded')
+
+      widget.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+      self.delayDisplay('Input volumes set')
     except Exception, e:
       import traceback
       traceback.print_exc()
