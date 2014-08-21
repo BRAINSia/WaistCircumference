@@ -246,7 +246,8 @@ class WaistCircumferenceWidget:
   def onFileSelected(self, fileName):
     self.imageFileListPath = fileName
     self.readImageFileList()
-    self.loadImage()
+    for path in self.imageFileList[:1]:
+      self.loadImage(path)
 
   def readImageFileList(self):
     if self.imageFileListPath:
@@ -256,17 +257,16 @@ class WaistCircumferenceWidget:
           self.imageFileList.append(row.rstrip())
       print self.imageFileList
 
-  def loadImage(self):
-    for path in self.imageFileList[:1]:
-      if os.path.exists(path):
-        slicer.util.loadVolume(path)
-        _, fileName = os.path.split(path)
-        pattern, _ = fileName.split('.')
-        masterVolumeNode = slicer.util.getNode(pattern=pattern)
-        self.helper.master = masterVolumeNode
-        self.createMerge()
-        mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
-        self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+  def loadImage(self, path):
+    if os.path.exists(path):
+      slicer.util.loadVolume(path)
+      _, fileName = os.path.split(path)
+      pattern, _ = fileName.split('.')
+      masterVolumeNode = slicer.util.getNode(pattern=pattern)
+      self.helper.master = masterVolumeNode
+      self.createMerge()
+      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+      self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
 
   def createMerge(self):
     try:
