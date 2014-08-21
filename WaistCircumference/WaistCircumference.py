@@ -123,6 +123,13 @@ class WaistCircumferenceWidget:
     parametersFormLayout.addRow(self.selectImageListButton)
 
     #
+    # Select results file button
+    #
+    self.selectResultsFileButton = qt.QPushButton("Select Results File")
+    self.selectResultsFileButton.toolTip = "Select a csv file for output"
+    parametersFormLayout.addRow(self.selectResultsFileButton)
+
+    #
     # Creates and adds the custom Editor Widget to the module
     #
     self.localEditorWidget = Editor.EditorWidget(parent=self.parent, showVolumesFrame=True)
@@ -164,6 +171,7 @@ class WaistCircumferenceWidget:
 
     # connections
     self.selectImageListButton.connect('clicked(bool)', self.onSelectImageList)
+    self.selectResultsFileButton.connect('clicked(bool)', self.onSelectResultsFile)
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.saveButton.connect('clicked(bool)', self.onSave)
     self.helper.masterSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
@@ -240,10 +248,10 @@ class WaistCircumferenceWidget:
       self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
       self.fileDialog.defaultSuffix = "csv"
       self.fileDialog.setNameFilter("Comma Separated Values (*.csv)")
-      self.fileDialog.connect("fileSelected(QString)", self.onFileSelected)
+      self.fileDialog.connect("fileSelected(QString)", self.onImageListFileSelected)
     self.fileDialog.show()
 
-  def onFileSelected(self, fileName):
+  def onImageListFileSelected(self, fileName):
     self.imageFileListPath = fileName
     self.readImageFileList()
     for path in self.imageFileList[:1]:
@@ -254,6 +262,21 @@ class WaistCircumferenceWidget:
       self.createMerge()
       mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
       self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+
+  def onSelectResultsFile(self):
+    """load the file containing a list absolute paths to images
+    """
+    if not self.fileDialog:
+      self.fileDialog = qt.QFileDialog(self.parent)
+      self.fileDialog.options = self.fileDialog.DontUseNativeDialog
+      self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
+      self.fileDialog.defaultSuffix = "csv"
+      self.fileDialog.setNameFilter("Comma Separated Values (*.csv)")
+      self.fileDialog.connect("fileSelected(QString)", self.onResultsFileSelected)
+    self.fileDialog.show()
+
+  def onResultsFileSelected(self, fileName):
+    print fileName
 
   def readImageFileList(self):
     if self.imageFileListPath:
@@ -280,8 +303,8 @@ class WaistCircumferenceWidget:
     except Exception, e:
       import traceback
       traceback.print_exc()
-      qt.QMessageBox.warning(slicer.util.mainWindow(),
-          "Create merge throwing error", 'Exception!\n\n' + str(e) + "\n\nSee Python Console for Stack Trace")
+      # qt.QMessageBox.warning(slicer.util.mainWindow(),
+      #     "Create merge throwing error", 'Exception!\n\n' + str(e) + "\n\nSee Python Console for Stack Trace")
 
   def onSave(self):
     """save the label statistics
