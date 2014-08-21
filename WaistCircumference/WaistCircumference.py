@@ -539,8 +539,9 @@ class WaistCircumferenceTest(unittest.TestCase):
     """Run as few or as many tests as needed here.
     """
     self.setUp()
-    self.test_WaistCircumference1()
-    self.test_WaistCircumference2()
+    # self.test_WaistCircumference1()
+    # self.test_WaistCircumference2()
+    self.test_WaistCircumference3()
 
   def test_WaistCircumference1(self):
     """ Ideally you should have several levels of tests.  At the lowest level
@@ -608,6 +609,18 @@ class WaistCircumferenceTest(unittest.TestCase):
       self.delayDisplay("Apply button selected")
 
       self.delayDisplay('Test 2 passed!')
+    except Exception, e:
+      import traceback
+      traceback.print_exc()
+      self.delayDisplay('Test caused exception!\n' + str(e))
+
+  def test_WaistCircumference3(self):
+    self.delayDisplay("Starting Test 3")
+    try:
+      imagePath = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
+      widget = slicer.modules.WaistCircumferenceWidget
+      widget.loadImage(imagePath)
+      self.delayDisplay('Opened image, created label, set input volumes')
     except Exception, e:
       import traceback
       traceback.print_exc()
