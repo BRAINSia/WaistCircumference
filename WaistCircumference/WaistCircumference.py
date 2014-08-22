@@ -281,14 +281,10 @@ class WaistCircumferenceWidget:
     self.readResultsFile()
 
   def readResultsFile(self):
-    self.resultsFileDict = list()
     if os.path.exists(self.resultsFilePath):
-      with open(self.resultsFilePath, 'rU') as results:
-        for row in results:
-          self.resultsFileDict.append(row.rstrip())
+      self.logic.readResultCSV(self.resultsFilePath)
     else:
       self.logic.createNewResultCSV(self.resultsFilePath)
-    print self.resultsFileDict
 
   def readImageFileList(self):
     if self.imageFileListPath:
@@ -513,6 +509,13 @@ class WaistCircumferenceLogic:
       resultsWriter = csv.writer(csvfile, delimiter=',',
                                  quotechar='"', quoting=csv.QUOTE_ALL)
       resultsWriter.writerow(self.keys)
+
+  def readResultCSV(self, fileName):
+    self.resultsDict = dict()
+    with open(self.resultsFilePath, 'rU') as csvfile:
+      resultsReader = csv.reader(csvfile, delimiter=',', quotechar='"')
+      for row in resultsReader:
+        self.resultsDict[row[0]] = row[1:]
 
   def statsAsCSV(self):
     """
