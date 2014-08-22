@@ -4,6 +4,7 @@ from __main__ import vtk, qt, ctk, slicer
 import Editor
 import SimpleITK as sitk
 import sitkUtils as su
+import csv
 
 #
 # WaistCircumference
@@ -53,7 +54,7 @@ class WaistCircumferenceWidget:
     self.fileDialog = None
     self.imageFileListPath = '/scratch/WaistCircumference/volumesList.csv'
     self.dirDialog = None
-    self.logic = None
+    self.logic = WaistCircumferenceLogic()
     if not parent:
       self.setup()
       self.parent.show()
@@ -191,7 +192,7 @@ class WaistCircumferenceWidget:
 
   def onApplyButton(self):
     self.localEditorWidget.toolsBox.selectEffect("DefaultTool")
-    self.logic = WaistCircumferenceLogic()
+    # self.logic = WaistCircumferenceLogic()
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     screenshotScaleFactor = int(self.screenshotScaleFactorSliderWidget.value)
     print("Run the algorithm")
@@ -276,7 +277,18 @@ class WaistCircumferenceWidget:
     self.fileDialog.show()
 
   def onResultsFileSelected(self, fileName):
-    print fileName
+    self.resultsFilePath = fileName
+    self.readResultsFile()
+
+  def readResultsFile(self):
+    self.resultsFileDict = list()
+    if os.path.exists(self.resultsFilePath):
+      with open(self.resultsFilePath, 'rU') as results:
+        for row in results:
+          self.resultsFileDict.append(row.rstrip())
+    else:
+      self.logic.createNewResultCSV(self.resultsFilePath)
+    print self.resultsFileDict
 
   def readImageFileList(self):
     if self.imageFileListPath:
@@ -495,6 +507,12 @@ class WaistCircumferenceLogic:
 
   def mmToInch(self, val):
     return val * 0.03937
+
+  def createNewResultCSV(self, fileName):
+    with open(fileName, 'wb') as csvfile:
+      resultsWriter = csv.writer(csvfile, delimiter=',',
+                                 quotechar='"', quoting=csv.QUOTE_ALL)
+      resultsWriter.writerow(self.keys)
 
   def statsAsCSV(self):
     """
