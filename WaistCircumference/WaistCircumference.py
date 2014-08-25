@@ -297,6 +297,7 @@ class WaistCircumferenceWidget:
     # saves the csv files to selected folder
     csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(folderName))
     self.logic.saveStats(csvFileName)
+    self.logic.appendStats(self.resultsFilePath)
 
   def installShortcutKeys(self):
     """Turn on module-wide shortcuts.  These are active independent
@@ -547,6 +548,16 @@ class WaistCircumferenceLogic:
     fp = open(fileName, "w")
     fp.write(self.statsAsCSV())
     fp.close()
+
+  def appendStats(self, fileName):
+    with open(fileName, 'a') as csvfile:
+      resultsWriter = csv.writer(csvfile, delimiter=',',
+                                 quotechar='"', quoting=csv.QUOTE_ALL)
+      for i in self.labelStats["Labels"]:
+        row = list()
+        for k in self.keys:
+          row.append(self.labelStats[int(i), k])
+        resultsWriter.writerow(row)
 
   def run(self, master, merge, enableScreenshots=0, screenshotScaleFactor=1):
     """
