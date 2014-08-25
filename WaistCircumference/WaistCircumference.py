@@ -117,18 +117,18 @@ class WaistCircumferenceWidget:
     parametersFormLayout.addRow("Screenshot scale factor", self.screenshotScaleFactorSliderWidget)
 
     #
-    # Select Image List Button
-    #
-    self.selectImageListButton = qt.QPushButton("Select Image List")
-    self.selectImageListButton.toolTip = "Select an image list in the form of absolute paths"
-    parametersFormLayout.addRow(self.selectImageListButton)
-
-    #
     # Select results file button
     #
     self.selectResultsFileButton = qt.QPushButton("Select Results File")
     self.selectResultsFileButton.toolTip = "Select a csv file for output"
     parametersFormLayout.addRow(self.selectResultsFileButton)
+
+    #
+    # Select Image List Button
+    #
+    self.selectImageListButton = qt.QPushButton("Select Image List")
+    self.selectImageListButton.toolTip = "Select an image list in the form of absolute paths"
+    parametersFormLayout.addRow(self.selectImageListButton)
 
     #
     # Creates and adds the custom Editor Widget to the module
@@ -278,9 +278,6 @@ class WaistCircumferenceWidget:
 
   def onResultsFileSelected(self, fileName):
     self.resultsFilePath = fileName
-    self.readResultsFile()
-
-  def readResultsFile(self):
     if os.path.exists(self.resultsFilePath):
       self.logic.readResultCSV(self.resultsFilePath)
     else:
