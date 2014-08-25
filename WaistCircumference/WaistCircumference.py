@@ -224,8 +224,11 @@ class WaistCircumferenceWidget:
       col = 1
       for k in self.logic.keys:
         item = qt.QStandardItem()
-        # set data as float with Qt::DisplayRole
-        item.setData(float(self.logic.labelStats[i,k]),qt.Qt.DisplayRole)
+        if k == "Volume":
+          item.setData(self.logic.labelStats[i,k],qt.Qt.DisplayRole)
+        else:
+          # set data as float with Qt::DisplayRole
+          item.setData(float(self.logic.labelStats[i,k]),qt.Qt.DisplayRole)
         item.setToolTip(colorNode.GetColorName(i))
         self.model.setItem(row,col,item)
         self.items.append(item)
@@ -356,7 +359,7 @@ class WaistCircumferenceLogic:
   requiring an instance of the Widget
   """
   def __init__(self):
-    self.keys = ("Index", "Circumference (mm)", "Circumference (in)")
+    self.keys = ("Index", "Volume", "Circumference (mm)", "Circumference (in)")
     self.labelStats = {}
     self.labelStats['Labels'] = []
     self.helper = None
@@ -468,9 +471,10 @@ class WaistCircumferenceLogic:
     filter2D.Execute(img2D)
     self.labelStats['Labels'] = filter2D.GetLabels()
     for labelValue in self.labelStats['Labels']:
-      self.labelStats[int(labelValue), self.keys[0]] = int(labelValue)
-      self.labelStats[int(labelValue), self.keys[1]] = filter2D.GetPerimeter(labelValue)
-      self.labelStats[int(labelValue), self.keys[2]] = self.mmToInch(filter2D.GetPerimeter(labelValue))
+      self.labelStats[int(labelValue), "Index"] = int(labelValue)
+      self.labelStats[int(labelValue), "Volume"] = self.helper.master.GetName()
+      self.labelStats[int(labelValue), "Circumference (mm)"] = filter2D.GetPerimeter(labelValue)
+      self.labelStats[int(labelValue), "Circumference (in)"] = self.mmToInch(filter2D.GetPerimeter(labelValue))
 
   def mmToInch(self, val):
     return val * 0.03937
