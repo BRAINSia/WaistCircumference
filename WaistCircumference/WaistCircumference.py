@@ -262,7 +262,8 @@ class WaistCircumferenceWidget:
   def onImageListFileSelected(self, fileName):
     self.imageFileListPath = fileName
     self.logic.readImageFileList(fileName)
-    self.logic.readInputImageListFile()
+    self.logic.startFirstImage()
+    # self.logic.readInputImageListFile()
 
   def onSelectResultsFile(self):
     """load the file containing a list absolute paths to images
@@ -298,6 +299,7 @@ class WaistCircumferenceWidget:
     csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(folderName))
     self.logic.saveStats(csvFileName)
     self.logic.appendStats(self.resultsFilePath)
+    self.logic.startNextImage()
 
   def installShortcutKeys(self):
     """Turn on module-wide shortcuts.  These are active independent
@@ -357,6 +359,7 @@ class WaistCircumferenceLogic:
     self.labelStats['Labels'] = []
     self.helper = None
     self.imageFileList = []
+    self.imageFileListCounter = 0
 
   def hasImageData(self,volumeNode):
     """This is a dummy logic method that
@@ -483,6 +486,26 @@ class WaistCircumferenceLogic:
 
   def readInputImageListFile(self):
     for path in self.imageFileList[:1]:
+      self.loadImage(path)
+      pattern = self.getNodePatternFromPath(path)
+      masterVolumeNode = slicer.util.getNode(pattern=pattern)
+      self.helper.master = masterVolumeNode
+      self.createMerge()
+      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+      self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+
+  def startFirstImage(self):
+    self.imageFileListCounter = 0
+    self.importAndCreateVolumes()
+
+  def startNextImage(self):
+    slicer.mrmlScene.Clear(0)
+    self.imageFileListCounter += 1
+    self.importAndCreateVolumes()
+
+  def importAndCreateVolumes(self):
+    path = self.imageFileList[self.imageFileListCounter]
+    if os.path.exists(path):
       self.loadImage(path)
       pattern = self.getNodePatternFromPath(path)
       masterVolumeNode = slicer.util.getNode(pattern=pattern)
