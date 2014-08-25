@@ -51,9 +51,9 @@ class WaistCircumferenceWidget:
     else:
       self.parent = parent
     self.layout = self.parent.layout()
-    self.fileDialog = None
+    self.imageFileListDialog = None
+    self.resultsFileDialog = None
     self.imageFileListPath = '/scratch/WaistCircumference/volumesList.csv'
-    self.dirDialog = None
     self.logic = WaistCircumferenceLogic()
     if not parent:
       self.setup()
@@ -165,7 +165,7 @@ class WaistCircumferenceWidget:
     #
     # Save Button
     #
-    self.saveButton = qt.QPushButton("Save")
+    self.saveButton = qt.QPushButton("Save and Next")
     self.saveButton.toolTip = "Save statistics to csv and save mrml scene."
     self.saveButton.enabled = False
     measurementsFormLayout.addRow(self.saveButton)
@@ -250,14 +250,14 @@ class WaistCircumferenceWidget:
   def onSelectImageList(self):
     """load the file containing a list absolute paths to images
     """
-    if not self.fileDialog:
-      self.fileDialog = qt.QFileDialog(self.parent)
-      self.fileDialog.options = self.fileDialog.DontUseNativeDialog
-      self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
-      self.fileDialog.defaultSuffix = "csv"
-      self.fileDialog.setNameFilter("Comma Separated Values (*.csv)")
-      self.fileDialog.connect("fileSelected(QString)", self.onImageListFileSelected)
-    self.fileDialog.show()
+    if not self.imageFileListDialog:
+      self.imageFileListDialog = qt.QFileDialog(self.parent)
+      self.imageFileListDialog.options = self.imageFileListDialog.DontUseNativeDialog
+      self.imageFileListDialog.acceptMode = self.imageFileListDialog.AcceptOpen
+      self.imageFileListDialog.defaultSuffix = "csv"
+      self.imageFileListDialog.setNameFilter("Comma Separated Values (*.csv)")
+      self.imageFileListDialog.connect("fileSelected(QString)", self.onImageListFileSelected)
+    self.imageFileListDialog.show()
 
   def onImageListFileSelected(self, fileName):
     self.imageFileListPath = fileName
@@ -267,14 +267,14 @@ class WaistCircumferenceWidget:
   def onSelectResultsFile(self):
     """load the file containing a list absolute paths to images
     """
-    if not self.fileDialog:
-      self.fileDialog = qt.QFileDialog(self.parent)
-      self.fileDialog.options = self.fileDialog.DontUseNativeDialog
-      self.fileDialog.acceptMode = self.fileDialog.AcceptOpen
-      self.fileDialog.defaultSuffix = "csv"
-      self.fileDialog.setNameFilter("Comma Separated Values (*.csv)")
-      self.fileDialog.connect("fileSelected(QString)", self.onResultsFileSelected)
-    self.fileDialog.show()
+    if not self.resultsFileDialog:
+      self.resultsFileDialog = qt.QFileDialog(self.parent)
+      self.resultsFileDialog.options = self.resultsFileDialog.DontUseNativeDialog
+      self.resultsFileDialog.acceptMode = self.resultsFileDialog.AcceptOpen
+      self.resultsFileDialog.defaultSuffix = "csv"
+      self.resultsFileDialog.setNameFilter("Comma Separated Values (*.csv)")
+      self.resultsFileDialog.connect("fileSelected(QString)", self.onResultsFileSelected)
+    self.resultsFileDialog.show()
 
   def onResultsFileSelected(self, fileName):
     self.resultsFilePath = fileName
@@ -286,21 +286,14 @@ class WaistCircumferenceWidget:
   def onSave(self):
     """save the label statistics
     """
-    if not self.dirDialog:
-      self.dirDialog = qt.QFileDialog(self.parent)
-      self.dirDialog.options = self.dirDialog.DontUseNativeDialog
-      self.dirDialog.acceptMode = self.dirDialog.AcceptOpen
-      self.dirDialog.fileMode = self.dirDialog.DirectoryOnly
-      self.dirDialog.connect("fileSelected(QString)", self.onDirSelected)
-    self.dirDialog.show()
-
-  def onDirSelected(self, dirName):
-    # saves the current scene to selected folder
+    baseDir = os.path.dirname(self.resultsFilePath)
+    folderName = self.helper.master.GetName()
+    dirName = os.path.join(baseDir, folderName)
     l = slicer.app.applicationLogic()
     l.SaveSceneToSlicerDataBundleDirectory(dirName, None)
 
     # saves the csv files to selected folder
-    csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(os.path.split(dirName)[1]))
+    csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(folderName))
     self.logic.saveStats(csvFileName)
 
   def installShortcutKeys(self):
