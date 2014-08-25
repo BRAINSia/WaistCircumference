@@ -525,9 +525,9 @@ class WaistCircumferenceLogic:
     with open(fileName, 'rU') as csvfile:
       resultsReader = csv.reader(csvfile, delimiter=',', quotechar='"')
       for row in resultsReader:
-        imageID = row[0]
-        if imageID != "Index": #skips header row
-          self.resultsDict[imageID] = row[1:]
+        imageID = row[1]
+        if imageID != "Volume": #skips header row
+          self.resultsDict[imageID] = row[2:]
     print self.resultsDict
 
   def statsAsCSV(self):
