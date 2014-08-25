@@ -263,7 +263,6 @@ class WaistCircumferenceWidget:
     self.imageFileListPath = fileName
     self.logic.readImageFileList(fileName)
     self.logic.startFirstImage()
-    # self.logic.readInputImageListFile()
 
   def onSelectResultsFile(self):
     """load the file containing a list absolute paths to images
@@ -483,16 +482,6 @@ class WaistCircumferenceLogic:
         for row in imageList:
           self.imageFileList.append(row.rstrip())
       print self.imageFileList
-
-  def readInputImageListFile(self):
-    for path in self.imageFileList[:1]:
-      self.loadImage(path)
-      pattern = self.getNodePatternFromPath(path)
-      masterVolumeNode = slicer.util.getNode(pattern=pattern)
-      self.helper.master = masterVolumeNode
-      self.createMerge()
-      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
-      self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
 
   def startFirstImage(self):
     self.imageFileListCounter = 0
