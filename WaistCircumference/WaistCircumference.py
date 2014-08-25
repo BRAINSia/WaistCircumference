@@ -289,6 +289,8 @@ class WaistCircumferenceWidget:
     baseDir = os.path.dirname(self.resultsFilePath)
     folderName = self.helper.master.GetName()
     dirName = os.path.join(baseDir, folderName)
+    if not os.path.exists(dirName):
+      os.mkdir(dirName)
     l = slicer.app.applicationLogic()
     l.SaveSceneToSlicerDataBundleDirectory(dirName, None)
 
