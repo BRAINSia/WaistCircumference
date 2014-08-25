@@ -137,7 +137,7 @@ class WaistCircumferenceWidget:
     self.localEditorWidget.setup()
     self.localEditorWidget.enter()
     self.installShortcutKeys()
-    self.helper = self.localEditorWidget.helper
+    self.setHelper()
 
     #
     # Measurements Area
@@ -240,6 +240,10 @@ class WaistCircumferenceWidget:
       self.model.setHeaderData(col,1,k)
       col += 1
 
+  def setHelper(self):
+    self.helper = self.localEditorWidget.helper
+    self.logic.helper = self.localEditorWidget.helper
+
   def onSelectImageList(self):
     """load the file containing a list absolute paths to images
     """
@@ -254,15 +258,8 @@ class WaistCircumferenceWidget:
 
   def onImageListFileSelected(self, fileName):
     self.imageFileListPath = fileName
-    self.readImageFileList()
-    for path in self.imageFileList[:1]:
-      self.loadImage(path)
-      pattern = self.getNodePatternFromPath(path)
-      masterVolumeNode = slicer.util.getNode(pattern=pattern)
-      self.helper.master = masterVolumeNode
-      self.createMerge()
-      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
-      self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+    self.logic.readImageFileList(fileName)
+    self.logic.readInputImageListFile()
 
   def onSelectResultsFile(self):
     """load the file containing a list absolute paths to images
@@ -285,34 +282,6 @@ class WaistCircumferenceWidget:
       self.logic.readResultCSV(self.resultsFilePath)
     else:
       self.logic.createNewResultCSV(self.resultsFilePath)
-
-  def readImageFileList(self):
-    if self.imageFileListPath:
-      self.imageFileList = list()
-      with open(self.imageFileListPath, 'rU') as imageList:
-        for row in imageList:
-          self.imageFileList.append(row.rstrip())
-      print self.imageFileList
-
-  def getNodePatternFromPath(self, path):
-    _, fileName = os.path.split(path)
-    pattern, _ = fileName.split('.')
-    return pattern
-
-  def loadImage(self, path):
-    if os.path.exists(path):
-      slicer.util.loadVolume(path)
-
-  def createMerge(self):
-    try:
-      self.helper.createMerge() # an error will be thrown:
-      # AttributeError: 'HelperBox' object has no attribute 'colorSelector'
-      # but it will still still create the merge image
-    except Exception, e:
-      import traceback
-      traceback.print_exc()
-      # qt.QMessageBox.warning(slicer.util.mainWindow(),
-      #     "Create merge throwing error", 'Exception!\n\n' + str(e) + "\n\nSee Python Console for Stack Trace")
 
   def onSave(self):
     """save the label statistics
@@ -390,6 +359,8 @@ class WaistCircumferenceLogic:
     self.keys = ("Index", "Circumference (mm)", "Circumference (in)")
     self.labelStats = {}
     self.labelStats['Labels'] = []
+    self.helper = None
+    self.imageFileList = []
 
   def hasImageData(self,volumeNode):
     """This is a dummy logic method that
@@ -503,6 +474,44 @@ class WaistCircumferenceLogic:
 
   def mmToInch(self, val):
     return val * 0.03937
+
+  def readImageFileList(self, fileName):
+    if os.path.exists(fileName):
+      self.imageFileList = list()
+      with open(fileName, 'rU') as imageList:
+        for row in imageList:
+          self.imageFileList.append(row.rstrip())
+      print self.imageFileList
+
+  def readInputImageListFile(self):
+    for path in self.imageFileList[:1]:
+      self.loadImage(path)
+      pattern = self.getNodePatternFromPath(path)
+      masterVolumeNode = slicer.util.getNode(pattern=pattern)
+      self.helper.master = masterVolumeNode
+      self.createMerge()
+      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+      self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+
+  def getNodePatternFromPath(self, path):
+    _, fileName = os.path.split(path)
+    pattern, _ = fileName.split('.')
+    return pattern
+
+  def loadImage(self, path):
+    if os.path.exists(path):
+      slicer.util.loadVolume(path)
+
+  def createMerge(self):
+    try:
+      self.helper.createMerge() # an error will be thrown:
+      # AttributeError: 'HelperBox' object has no attribute 'colorSelector'
+      # but it will still still create the merge image
+    except Exception, e:
+      import traceback
+      traceback.print_exc()
+      # qt.QMessageBox.warning(slicer.util.mainWindow(),
+      #     "Create merge throwing error", 'Exception!\n\n' + str(e) + "\n\nSee Python Console for Stack Trace")
 
   def createNewResultCSV(self, fileName):
     with open(fileName, 'wb') as csvfile:
@@ -670,18 +679,16 @@ class WaistCircumferenceTest(unittest.TestCase):
     try:
       path = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
       widget = slicer.modules.WaistCircumferenceWidget
-      widget.loadImage(path)
-      pattern = widget.getNodePatternFromPath(path)
+      widget.logic.loadImage(path)
+      pattern = widget.logic.getNodePatternFromPath(path)
       masterVolumeNode = slicer.util.getNode(pattern=pattern)
-      logic = WaistCircumferenceLogic()
-      self.assertTrue( logic.hasImageData(masterVolumeNode) )
+      self.assertTrue( widget.logic.hasImageData(masterVolumeNode) )
       self.delayDisplay('Test master volume image loaded')
 
       widget.helper.master = masterVolumeNode
-      widget.createMerge()
+      widget.logic.createMerge()
       mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
-      logic = WaistCircumferenceLogic()
-      self.assertTrue( logic.hasImageData(mergeVolumeNode) )
+      self.assertTrue( widget.logic.hasImageData(mergeVolumeNode) )
       self.delayDisplay('Test merge volume image loaded')
 
       widget.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
