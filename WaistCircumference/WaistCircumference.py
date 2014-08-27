@@ -286,6 +286,7 @@ class WaistCircumferenceWidget:
   def onSave(self):
     """save the label statistics
     """
+    self.logic.takeScreenshot('Slice-label','slice',slicer.qMRMLScreenShotDialog().Red)
     baseDir = os.path.dirname(self.resultsFilePath)
     folderName = self.helper.master.GetName()
     dirName = os.path.join(baseDir, folderName)
@@ -492,16 +493,24 @@ class WaistCircumferenceLogic:
     self.imageFileListCounter += 1
     self.importAndCreateVolumes()
 
+  def checkCounter(self):
+    return self.imageFileListCounter < len(self.imageFileList)
+
   def importAndCreateVolumes(self):
-    path = self.imageFileList[self.imageFileListCounter]
-    if os.path.exists(path):
-      self.loadImage(path)
-      pattern = self.getNodePatternFromPath(path)
-      masterVolumeNode = slicer.util.getNode(pattern=pattern)
-      self.helper.master = masterVolumeNode
-      self.createMerge()
-      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
-      self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+    if self.checkCounter():
+      path = self.imageFileList[self.imageFileListCounter]
+      if os.path.exists(path):
+        self.loadImage(path)
+        pattern = self.getNodePatternFromPath(path)
+        masterVolumeNode = slicer.util.getNode(pattern=pattern)
+        self.helper.master = masterVolumeNode
+        self.createMerge()
+        mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+        self.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+    else:
+      qt.QMessageBox.warning(slicer.util.mainWindow(),
+          "End of image list", "You have reached the end of the image "
+                               "list!\n\nPlease do NOT select 'Save and Next' again")
 
   def getNodePatternFromPath(self, path):
     _, fileName = os.path.split(path)
@@ -582,8 +591,6 @@ class WaistCircumferenceLogic:
     self.enableScreenshots = enableScreenshots
     self.screenshotScaleFactor = screenshotScaleFactor
 
-    self.takeScreenshot('WaistCircumference-Start','Start',-1)
-    
     self.calculateCircumference(merge)
 
     return True
