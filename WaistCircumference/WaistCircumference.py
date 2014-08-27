@@ -286,6 +286,7 @@ class WaistCircumferenceWidget:
   def onSave(self):
     """save the label statistics
     """
+    self.onApplyButton() #selects Apply in case it is accidentally not pressed
     self.logic.takeScreenshot('Slice-label','slice',slicer.qMRMLScreenShotDialog().Red)
     baseDir = os.path.dirname(self.resultsFilePath)
     folderName = self.helper.master.GetName()
