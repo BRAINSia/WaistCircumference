@@ -224,7 +224,7 @@ class WaistCircumferenceWidget:
       col = 1
       for k in self.logic.keys:
         item = qt.QStandardItem()
-        if k == "Volume":
+        if k == "Image Name":
           item.setData(self.logic.labelStats[i,k],qt.Qt.DisplayRole)
         else:
           # set data as float with Qt::DisplayRole
@@ -354,7 +354,7 @@ class WaistCircumferenceLogic:
   requiring an instance of the Widget
   """
   def __init__(self):
-    self.keys = ("Index", "Volume", "Slice", "Circumference (mm)", "Circumference (in)")
+    self.keys = ("Index", "Image Name", "Slice", "Circumference (mm)", "Circumference (in)")
     self.labelStats = {}
     self.labelStats['Labels'] = []
     self.helper = None
@@ -468,7 +468,7 @@ class WaistCircumferenceLogic:
     self.labelStats['Labels'] = filter2D.GetLabels()
     for labelValue in self.labelStats['Labels']:
       self.labelStats[int(labelValue), "Index"] = int(labelValue)
-      self.labelStats[int(labelValue), "Volume"] = self.helper.master.GetName()
+      self.labelStats[int(labelValue), "Image Name"] = self.helper.master.GetName()
       self.labelStats[int(labelValue), "Slice"] = currentSlice
       self.labelStats[int(labelValue), "Circumference (mm)"] = filter2D.GetPerimeter(labelValue)
       self.labelStats[int(labelValue), "Circumference (in)"] = self.mmToInch(filter2D.GetPerimeter(labelValue))
@@ -544,7 +544,7 @@ class WaistCircumferenceLogic:
       resultsReader = csv.reader(csvfile, delimiter=',', quotechar='"')
       for row in resultsReader:
         imageID = row[1]
-        if imageID != "Volume": #skips header row
+        if imageID != "Image Name": #skips header row
           self.resultsDict[imageID] = row[2:]
     print self.resultsDict
 
