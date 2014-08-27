@@ -299,7 +299,11 @@ class WaistCircumferenceWidget:
     csvFileName = os.path.join(dirName, "{0}_waist_circumference.csv".format(folderName))
     self.logic.saveStats(csvFileName)
     self.logic.appendStats(self.resultsFilePath)
+    self.resetTableModel()
     self.logic.startNextImage()
+
+  def resetTableModel(self):
+    self.model = None
 
   def installShortcutKeys(self):
     """Turn on module-wide shortcuts.  These are active independent
