@@ -212,7 +212,7 @@ class WaistCircumferenceWidget:
     self.view.setModel(self.model)
     self.view.verticalHeader().visible = False
     row = 0
-    for i in self.logic.labelStats["Labels"]:
+    for (slice, i) in self.logic.labelStats["Labels"]:
       color = qt.QColor()
       rgb = lut.GetTableValue(i)
       color.setRgb(rgb[0]*255,rgb[1]*255,rgb[2]*255)
@@ -225,10 +225,10 @@ class WaistCircumferenceWidget:
       for k in self.logic.keys:
         item = qt.QStandardItem()
         if k == "Image Name":
-          item.setData(self.logic.labelStats[i,k],qt.Qt.DisplayRole)
+          item.setData(self.logic.labelStats[slice,i,k],qt.Qt.DisplayRole)
         else:
           # set data as float with Qt::DisplayRole
-          item.setData(float(self.logic.labelStats[i,k]),qt.Qt.DisplayRole)
+          item.setData(float(self.logic.labelStats[slice,i,k]),qt.Qt.DisplayRole)
         item.setToolTip(colorNode.GetColorName(i))
         self.model.setItem(row,col,item)
         self.items.append(item)
@@ -465,18 +465,26 @@ class WaistCircumferenceLogic:
     return currentSlice
 
   def calculateCircumference(self, merge):
+    self.labelStats = {}
+    self.labelStats['Labels'] = []
     label3D = su.PullFromSlicer(merge.GetName())
-    currentSlice = self.getCurrentSlice()
-    img2D = label3D[:, :, currentSlice]
-    filter2D = sitk.LabelShapeStatisticsImageFilter()
-    filter2D.Execute(img2D)
-    self.labelStats['Labels'] = filter2D.GetLabels()
-    for labelValue in self.labelStats['Labels']:
-      self.labelStats[int(labelValue), "Index"] = int(labelValue)
-      self.labelStats[int(labelValue), "Image Name"] = self.helper.master.GetName()
-      self.labelStats[int(labelValue), "Slice"] = currentSlice
-      self.labelStats[int(labelValue), "Circumference (mm)"] = filter2D.GetPerimeter(labelValue)
-      self.labelStats[int(labelValue), "Circumference (in)"] = self.mmToInch(filter2D.GetPerimeter(labelValue))
+    # currentSlice = self.getCurrentSlice()
+    indexRange = range(0, label3D.GetSize()[2])
+    for sliceIndex in indexRange:
+      img2D = label3D[:, :, sliceIndex]
+      filter2D = sitk.LabelShapeStatisticsImageFilter()
+      filter2D.Execute(img2D)
+      labels = filter2D.GetLabels()
+      if len(labels) == 0:
+        continue
+      for labelValue in labels:
+        self.labelStats["Labels"].append((sliceIndex, int(labelValue)))
+        self.labelStats[sliceIndex, int(labelValue), "Index"] = int(labelValue)
+        self.labelStats[sliceIndex, int(labelValue), "Image Name"] = self.helper.master.GetName()
+        self.labelStats[sliceIndex, int(labelValue), "Slice"] = sliceIndex
+        self.labelStats[sliceIndex, int(labelValue), "Circumference (mm)"] = filter2D.GetPerimeter(labelValue)
+        self.labelStats[sliceIndex, int(labelValue), "Circumference (in)"] = self.mmToInch(filter2D.GetPerimeter(labelValue))
+        print self.labelStats
 
   def mmToInch(self, val):
     return val * 0.03937
@@ -563,11 +571,11 @@ class WaistCircumferenceLogic:
       header += "\"%s\"" % k + ","
     header += "\"%s\"" % self.keys[-1] + "\n"
     csv = header
-    for i in self.labelStats["Labels"]:
+    for (slice, i) in self.labelStats["Labels"]:
       line = ""
       for k in self.keys[:-1]:
-        line += str(self.labelStats[i,k]) + ","
-      line += str(self.labelStats[i,self.keys[-1]]) + "\n"
+        line += str(self.labelStats[slice, i, k]) + ","
+      line += str(self.labelStats[slice, i, self.keys[-1]]) + "\n"
       csv += line
     return csv
 
@@ -580,10 +588,10 @@ class WaistCircumferenceLogic:
     with open(fileName, 'a') as csvfile:
       resultsWriter = csv.writer(csvfile, delimiter=',',
                                  quotechar='"', quoting=csv.QUOTE_ALL)
-      for i in self.labelStats["Labels"]:
+      for (slice, i) in self.labelStats["Labels"]:
         row = list()
         for k in self.keys:
-          row.append(self.labelStats[int(i), k])
+          row.append(self.labelStats[slice, int(i), k])
         resultsWriter.writerow(row)
 
   def run(self, master, merge, enableScreenshots=0, screenshotScaleFactor=1):
