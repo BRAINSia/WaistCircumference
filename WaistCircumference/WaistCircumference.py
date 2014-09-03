@@ -2,6 +2,7 @@ import os
 import unittest
 from __main__ import vtk, qt, ctk, slicer
 import Editor
+import EditorLib
 import SimpleITK as sitk
 import sitkUtils as su
 import csv
@@ -655,7 +656,7 @@ class WaistCircumferenceTest(unittest.TestCase):
     """
     self.setUp()
     self.test_WaistCircumference1()
-    # self.test_WaistCircumference2()
+    self.test_WaistCircumference2()
     self.test_WaistCircumference3()
 
   def test_WaistCircumference1(self):
@@ -713,6 +714,49 @@ class WaistCircumferenceTest(unittest.TestCase):
 
   def test_WaistCircumference2(self):
     self.delayDisplay("Starting Test 2")
+
+    try:
+      self.delayDisplay("Paint a circle for label 1")
+      editUtil = EditorLib.EditUtil.EditUtil()
+      lm = slicer.app.layoutManager()
+      paintEffect = EditorLib.PaintEffectOptions()
+      paintEffect.setMRMLDefaults()
+      paintEffect.__del__()
+      sliceWidget = lm.sliceWidget('Red')
+      paintTool = EditorLib.PaintEffectTool(sliceWidget)
+      editUtil.setLabel(1)
+      (x, y) = self.rasToXY((38,165,-122), sliceWidget)
+      paintTool.paintAddPoint(x, y)
+      paintTool.paintApply()
+      self.delayDisplay("Paint a circle for label 2")
+      editUtil.setLabel(2)
+      (x, y) = self.rasToXY((12.5,171,-122), sliceWidget)
+      paintTool.paintAddPoint(x, y)
+      paintTool.paintApply()
+      paintTool.cleanup()
+      paintTool = None
+      self.delayDisplay("Painted circles for labels 1 and 2")
+
+      self.delayDisplay("Test 2 passed!\n")
+
+    except Exception, e:
+      import traceback
+      traceback.print_exc()
+      self.delayDisplay('Test caused exception!\n' + str(e))
+
+  def rasToXY(self, rasPoint, sliceWidget):
+    sliceLogic = sliceWidget.sliceLogic()
+    sliceNode = sliceLogic.GetSliceNode()
+    rasToXY = vtk.vtkMatrix4x4()
+    rasToXY.DeepCopy(sliceNode.GetXYToRAS())
+    rasToXY.Invert()
+    xyzw = rasToXY.MultiplyPoint(rasPoint+(1,))
+    x = int(round(xyzw[0]))
+    y = int(round(xyzw[1]))
+    return x, y
+
+  def test_WaistCircumference3(self):
+    self.delayDisplay("Starting Test 3")
     try:
       widget = slicer.modules.WaistCircumferenceWidget
       self.delayDisplay("Opened WaistCircumferenceWidget")
@@ -720,12 +764,8 @@ class WaistCircumferenceTest(unittest.TestCase):
       widget.onApplyButton()
       self.delayDisplay("Apply button selected")
 
-      self.delayDisplay('Test 2 passed!')
+      self.delayDisplay('Test 3 passed!')
     except Exception, e:
       import traceback
       traceback.print_exc()
       self.delayDisplay('Test caused exception!\n' + str(e))
-
-  def test_WaistCircumference3(self):
-    self.delayDisplay("Starting Test 3")
-
