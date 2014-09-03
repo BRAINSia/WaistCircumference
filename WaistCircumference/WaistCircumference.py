@@ -12,17 +12,33 @@ import csv
 
 class WaistCircumference:
   def __init__(self, parent):
-    parent.title = "WaistCircumference" # TODO make this more human readable by adding spaces
+    parent.title = "WaistCircumference"
     parent.categories = ["Testing.TestCases"]
     parent.dependencies = []
-    parent.contributors = ["Jessica Forbes (University of Iowa)"] # replace with "Firstname Lastname (Organization)"
-    parent.helpText = """
-    This is an example of scripted loadable module bundled in an extension.
+    parent.contributors = ["Jessica Forbes (University of Iowa)"]
+    parent.helpText = """This module provides the user with a quick semi-automated
+    method to calculate the waist circumference. The user selects a file to contain
+    the results. If the files does not exist, the module creates a new csv file with
+    an appropriate header row. This file with contain the circumference results which
+    are appended when the user selects the "Save and Next" button. The user also
+    selects a file containing a list of absolute paths to the scan locations. The
+    file should be formatted so that each row contains only one file path. No commas
+    or quotations are required. Once this file is selected, the first scan will
+    automatically open. Then the user can select Editor tools to create a label map
+    of the waist. The user can scroll through the image slices using the middle mouse
+    button. Then select the "Apply" button to calculate the waist circumference of the
+    selected labels in all slices. The user should select "Save and Next" when satisfied
+    with label selections. This will save the data in the display table to the output
+    results file, save the mrml scene to a folder named from the master volume's name,
+    and then open the next scan in the input "Image List" file.
+    Useful shortcut keys include: 'l' - selects the Editor Level Tracing
+    Effect, 'a' - selects the "Apply" button, 's' - selects the "Save and Next" button,
+    'o' - toggles on/off the outline of labels.
     """
     parent.acknowledgementText = """
-    This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc.
-    and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
-""" # replace with organization, grant and thanks.
+    This file was originally developed by Jessica Forbes of the SINAPSE Lab
+     at the University of Iowa."""
+    # replace with organization, grant and thanks.
     self.parent = parent
 
     # Add this test to the SelfTest module's list for discovery when the module
@@ -192,7 +208,6 @@ class WaistCircumferenceWidget:
 
   def onApplyButton(self):
     self.localEditorWidget.toolsBox.selectEffect("DefaultTool")
-    # self.logic = WaistCircumferenceLogic()
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     screenshotScaleFactor = int(self.screenshotScaleFactorSliderWidget.value)
     print("Run the algorithm")
@@ -523,7 +538,7 @@ class WaistCircumferenceLogic:
     else:
       qt.QMessageBox.warning(slicer.util.mainWindow(),
           "End of image list", "You have reached the end of the image "
-                               "list!\n\nPlease do NOT select 'Save and Next' again")
+                               "list!\n\nYou can now close Slicer")
 
   def getNodePatternFromPath(self, path):
     _, fileName = os.path.split(path)
