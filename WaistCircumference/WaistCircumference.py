@@ -654,7 +654,7 @@ class WaistCircumferenceTest(unittest.TestCase):
     """Run as few or as many tests as needed here.
     """
     self.setUp()
-    # self.test_WaistCircumference1()
+    self.test_WaistCircumference1()
     # self.test_WaistCircumference2()
     self.test_WaistCircumference3()
 
@@ -690,25 +690,22 @@ class WaistCircumferenceTest(unittest.TestCase):
     # self.delayDisplay('Finished with download and loading\n')
 
     try:
-      imagePath = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
-      labelPath = "/Shared/johnsonhj/HDNI/20140527_WaistCircumfrenceProject/20140529_Jessica_Test_Data/2AbdPelvis5-label.nrrd"
-      slicer.util.loadVolume(imagePath)
-      slicer.util.loadLabelVolume(labelPath)
-
-      volumeNode = slicer.util.getNode(pattern="2AbdPelvis5")
-      logic = WaistCircumferenceLogic()
-      self.assertTrue( logic.hasImageData(volumeNode) )
-      self.delayDisplay('Test volume image loaded')
-
-      labelNode = slicer.util.getNode(pattern="2AbdPelvis5-label")
-      logic = WaistCircumferenceLogic()
-      self.assertTrue( logic.hasImageData(labelNode) )
-      self.delayDisplay('Test label image loaded')
-
+      path = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
       widget = slicer.modules.WaistCircumferenceWidget
-      widget.helper.setMasterVolume(volumeNode)
-      self.delayDisplay('Test label image set as Master Volume')
-      self.delayDisplay('Test 1 passed!')
+      widget.logic.loadImage(path)
+      pattern = widget.logic.getNodePatternFromPath(path)
+      masterVolumeNode = slicer.util.getNode(pattern=pattern)
+      self.assertTrue( widget.logic.hasImageData(masterVolumeNode) )
+      self.delayDisplay('Test master volume image loaded')
+
+      widget.helper.master = masterVolumeNode
+      widget.logic.createMerge()
+      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
+      self.assertTrue( widget.logic.hasImageData(mergeVolumeNode) )
+      self.delayDisplay('Test merge volume image loaded')
+
+      widget.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
+      self.delayDisplay('Input volumes set')
     except Exception, e:
       import traceback
       traceback.print_exc()
@@ -731,24 +728,4 @@ class WaistCircumferenceTest(unittest.TestCase):
 
   def test_WaistCircumference3(self):
     self.delayDisplay("Starting Test 3")
-    try:
-      path = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
-      widget = slicer.modules.WaistCircumferenceWidget
-      widget.logic.loadImage(path)
-      pattern = widget.logic.getNodePatternFromPath(path)
-      masterVolumeNode = slicer.util.getNode(pattern=pattern)
-      self.assertTrue( widget.logic.hasImageData(masterVolumeNode) )
-      self.delayDisplay('Test master volume image loaded')
 
-      widget.helper.master = masterVolumeNode
-      widget.logic.createMerge()
-      mergeVolumeNode = slicer.util.getNode(pattern="{0}-label".format(pattern))
-      self.assertTrue( widget.logic.hasImageData(mergeVolumeNode) )
-      self.delayDisplay('Test merge volume image loaded')
-
-      widget.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
-      self.delayDisplay('Input volumes set')
-    except Exception, e:
-      import traceback
-      traceback.print_exc()
-      self.delayDisplay('Test caused exception!\n' + str(e))
