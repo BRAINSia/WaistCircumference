@@ -543,7 +543,8 @@ class WaistCircumferenceLogic:
 
   def getNodePatternFromPath(self, path):
     _, fileName = os.path.split(path)
-    pattern, _ = fileName.split('.')
+    fileNameList = fileName.split('.')
+    pattern = fileNameList[0]
     return pattern
 
   def loadImage(self, path):
@@ -707,6 +708,7 @@ class WaistCircumferenceTest(unittest.TestCase):
 
       widget.helper.setVolumes(masterVolumeNode, mergeVolumeNode)
       self.delayDisplay('Input volumes set')
+      self.delayDisplay("Test 1 passed!\n")
     except Exception, e:
       import traceback
       traceback.print_exc()
