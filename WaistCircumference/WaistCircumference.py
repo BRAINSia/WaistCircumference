@@ -33,8 +33,7 @@ class WaistCircumference:
     results file, save the mrml scene to a folder named from the master volume's name,
     and then open the next scan in the input "Image List" file.
     Useful shortcut keys include: 'l' - selects the Editor Level Tracing
-    Effect, 'a' - selects the "Apply" button, 's' - selects the "Save and Next" button,
-    'o' - toggles on/off the outline of labels.
+    Effect, 'a' - selects the "Apply" button, 'o' - toggles on/off the outline of labels.
     """
     parent.acknowledgementText = """
     This file was originally developed by Jessica Forbes of the SINAPSE Lab
@@ -329,7 +328,7 @@ class WaistCircumferenceWidget:
     keysAndCallbacks = (
         ('l', lambda : self.localEditorWidget.toolsBox.selectEffect('LevelTracingEffect')),
         ('a', lambda : self.onApplyButton()),
-        ('s', lambda : self.onSave()),
+        #('s', lambda : self.onSave()),
         )
     for key,callback in keysAndCallbacks:
       shortcut = qt.QShortcut(slicer.util.mainWindow())
