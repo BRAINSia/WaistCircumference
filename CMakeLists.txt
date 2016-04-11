@@ -4,12 +4,12 @@ project(WaistCircumference)
 
 #-----------------------------------------------------------------------------
 # Extension meta-information
-set(EXTENSION_HOMEPAGE "http://www.example.com/Slicer/Extensions/WaistCircumference")
-set(EXTENSION_CATEGORY "Examples")
+set(EXTENSION_HOMEPAGE "https://github.com/BRAINSia/WaistCircumference")
+set(EXTENSION_CATEGORY "Segmentation")
 set(EXTENSION_CONTRIBUTORS "Jessica Forbes (University of Iowa), Hans Johnson (University of Iowa)")
-set(EXTENSION_DESCRIPTION "This module calculates the waist circumference from an abdominal CT scan.  The user scrolls through the scan to find a slice containing the belly button. The user then hovers over the edge of the waist perimeter to create an outline of the waist. When satisfied with the waist outilne, the user clicks and a labelmap is created containing a label.  The user selects Apply and the perimeter of the label shape is calculated and displayed.  Most commonly the spacing units of the image will be calculated in mm. The perimeter is will be calculated with the same unit as the image spacing.")
-set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/WaistCircumference.png")
-set(EXTENSION_SCREENSHOTURLS "http://www.example.com/Slicer/Extensions/WaistCircumference/Screenshots/1.png")
+set(EXTENSION_DESCRIPTION "This module provides a quick semi-automated method to calculate and save the waist circumference from multiple abdominal images.")
+set(EXTENSION_ICONURL "https://github.com/BRAINSia/WaistCircumference/blob/master/WaistCircumference/Resources/Icons/WaistCircumference.png")
+set(EXTENSION_SCREENSHOTURLS "https://github.com/BRAINSia/WaistCircumference/blob/master/WC_module.png https://github.com/BRAINSia/WaistCircumference/blob/master/WC_multiple_measures.png https://github.com/BRAINSia/WaistCircumference/blob/master/WC_level_tracing_effect_Editor.png https://github.com/BRAINSia/WaistCircumference/blob/master/WC_axial_slice_to_measure.png https://github.com/BRAINSia/WaistCircumference/blob/master/WC_example_input_imageList.png https://github.com/BRAINSia/WaistCircumference/blob/master/WC_example_results.png")
 
 #-----------------------------------------------------------------------------
 # Extension dependencies
