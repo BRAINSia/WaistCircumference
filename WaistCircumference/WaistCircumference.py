@@ -14,7 +14,7 @@ import csv
 class WaistCircumference:
   def __init__(self, parent):
     parent.title = "WaistCircumference"
-    parent.categories = ["Testing.TestCases"]
+    parent.categories = ["Segmentation"]
     parent.dependencies = []
     parent.contributors = ["Jessica Forbes (University of Iowa)"]
     parent.helpText = """This module provides the user with a quick semi-automated
@@ -69,7 +69,7 @@ class WaistCircumferenceWidget:
     self.layout = self.parent.layout()
     self.imageFileListDialog = None
     self.resultsFileDialog = None
-    self.imageFileListPath = '/scratch/WaistCircumference/volumesList.csv'
+    self.imageFileListPath = None
     self.logic = WaistCircumferenceLogic()
     if not parent:
       self.setup()
@@ -83,6 +83,7 @@ class WaistCircumferenceWidget:
     #
     reloadCollapsibleButton = ctk.ctkCollapsibleButton()
     reloadCollapsibleButton.text = "Reload && Test"
+    reloadCollapsibleButton.collapsed = True
     self.layout.addWidget(reloadCollapsibleButton)
     reloadFormLayout = qt.QFormLayout(reloadCollapsibleButton)
 
@@ -119,7 +120,7 @@ class WaistCircumferenceWidget:
     self.enableScreenshotsFlagCheckBox = qt.QCheckBox()
     self.enableScreenshotsFlagCheckBox.checked = 0
     self.enableScreenshotsFlagCheckBox.setToolTip("If checked, take screen shots for tutorials. Use Save Data to write them to disk.")
-    parametersFormLayout.addRow("Enable Screenshots", self.enableScreenshotsFlagCheckBox)
+    # parametersFormLayout.addRow("Enable Screenshots", self.enableScreenshotsFlagCheckBox)
 
     #
     # scale factor for screen shots
@@ -130,19 +131,19 @@ class WaistCircumferenceWidget:
     self.screenshotScaleFactorSliderWidget.maximum = 50.0
     self.screenshotScaleFactorSliderWidget.value = 1.0
     self.screenshotScaleFactorSliderWidget.setToolTip("Set scale factor for the screen shots.")
-    parametersFormLayout.addRow("Screenshot scale factor", self.screenshotScaleFactorSliderWidget)
+    # parametersFormLayout.addRow("Screenshot scale factor", self.screenshotScaleFactorSliderWidget)
 
     #
     # Select results file button
     #
-    self.selectResultsFileButton = qt.QPushButton("Select Results File")
+    self.selectResultsFileButton = qt.QPushButton("Step 1:  Select Results File")
     self.selectResultsFileButton.toolTip = "Select a csv file for output"
     parametersFormLayout.addRow(self.selectResultsFileButton)
 
     #
     # Select Image List Button
     #
-    self.selectImageListButton = qt.QPushButton("Select Image List")
+    self.selectImageListButton = qt.QPushButton("Step 2:  Select Image List  ")
     self.selectImageListButton.toolTip = "Select an image list in the form of absolute paths"
     parametersFormLayout.addRow(self.selectImageListButton)
 
@@ -158,17 +159,18 @@ class WaistCircumferenceWidget:
     #
     # Measurements Area
     #
-    measurementsCollapsibleButton = ctk.ctkCollapsibleButton()
-    measurementsCollapsibleButton.text = "Measurements"
-    self.layout.addWidget(measurementsCollapsibleButton)
+    self.measurementsCollapsibleButton = ctk.ctkCollapsibleButton()
+    self.measurementsCollapsibleButton.text = "Measurements"
+    self.measurementsCollapsibleButton.collapsed = True
+    self.layout.addWidget(self.measurementsCollapsibleButton)
 
     # Layout within the Measurements collapsible button
-    measurementsFormLayout = qt.QFormLayout(measurementsCollapsibleButton)
+    measurementsFormLayout = qt.QFormLayout(self.measurementsCollapsibleButton)
 
     #
     # Apply Button
     #
-    self.applyButton = qt.QPushButton("Apply")
+    self.applyButton = qt.QPushButton("Calculate Circumference")
     self.applyButton.toolTip = "Run the algorithm."
     self.applyButton.enabled = False
     measurementsFormLayout.addRow(self.applyButton)
@@ -277,6 +279,7 @@ class WaistCircumferenceWidget:
   def onImageListFileSelected(self, fileName):
     self.imageFileListPath = fileName
     self.logic.readImageFileList(fileName)
+    self.measurementsCollapsibleButton.collapsed = False
     self.logic.startFirstImage()
 
   def onSelectResultsFile(self):
@@ -328,7 +331,6 @@ class WaistCircumferenceWidget:
     keysAndCallbacks = (
         ('l', lambda : self.localEditorWidget.toolsBox.selectEffect('LevelTracingEffect')),
         ('a', lambda : self.onApplyButton()),
-        #('s', lambda : self.onSave()),
         )
     for key,callback in keysAndCallbacks:
       shortcut = qt.QShortcut(slicer.util.mainWindow())
@@ -355,7 +357,7 @@ class WaistCircumferenceWidget:
       evalString = 'globals()["%s"].%sTest()' % (moduleName, moduleName)
       tester = eval(evalString)
       tester.runTest()
-    except Exception, e:
+    except Exception as e:
       import traceback
       traceback.print_exc()
       qt.QMessageBox.warning(slicer.util.mainWindow(),
@@ -499,7 +501,7 @@ class WaistCircumferenceLogic:
         self.labelStats[sliceIndex, int(labelValue), "Slice"] = sliceIndex
         self.labelStats[sliceIndex, int(labelValue), "Circumference (mm)"] = filter2D.GetPerimeter(labelValue)
         self.labelStats[sliceIndex, int(labelValue), "Circumference (in)"] = self.mmToInch(filter2D.GetPerimeter(labelValue))
-        print self.labelStats
+        print(self.labelStats)
 
   def mmToInch(self, val):
     return val * 0.03937
@@ -510,7 +512,7 @@ class WaistCircumferenceLogic:
       with open(fileName, 'rU') as imageList:
         for row in imageList:
           self.imageFileList.append(row.rstrip())
-      print self.imageFileList
+      print(self.imageFileList)
 
   def startFirstImage(self):
     self.imageFileListCounter = 0
@@ -552,10 +554,12 @@ class WaistCircumferenceLogic:
 
   def createMerge(self):
     try:
-      self.helper.createMerge() # an error will be thrown:
+      self.helper.createMerge()
+    except AttributeError as e:
+      # Note: an AttributeError error may be thrown, but will still create the merge image:
       # AttributeError: 'HelperBox' object has no attribute 'colorSelector'
-      # but it will still still create the merge image
-    except Exception, e:
+      pass
+    except Exception as e:
       import traceback
       traceback.print_exc()
       # qt.QMessageBox.warning(slicer.util.mainWindow(),
@@ -575,7 +579,7 @@ class WaistCircumferenceLogic:
         imageID = row[1]
         if imageID != "Image Name": #skips header row
           self.resultsDict[imageID] = row[2:]
-    print self.resultsDict
+    print(self.resultsDict)
 
   def statsAsCSV(self):
     """
@@ -650,6 +654,8 @@ class WaistCircumferenceTest(unittest.TestCase):
     """ Do whatever is needed to reset the state - typically a scene clear will be enough.
     """
     slicer.mrmlScene.Clear(0)
+    widget = slicer.modules.WaistCircumferenceWidget
+    widget.onReload()
 
   def runTest(self):
     """Run as few or as many tests as needed here.
@@ -660,41 +666,30 @@ class WaistCircumferenceTest(unittest.TestCase):
     self.test_WaistCircumference3()
 
   def test_WaistCircumference1(self):
-    """ Ideally you should have several levels of tests.  At the lowest level
-    tests sould exercise the functionality of the logic with different inputs
-    (both valid and invalid).  At higher levels your tests should emulate the
-    way the user would interact with your code and confirm that it still works
-    the way you intended.
-    One of the most important features of the tests is that it should alert other
-    developers when their changes will have an impact on the behavior of your
-    module.  For example, if a developer removes a feature that you depend on,
-    your test should break so they know that the feature is needed.
-    """
 
     self.delayDisplay("Starting Test 1")
     #
     # first, get some data
     #
     import urllib
-    # downloads = (
-    #     ('http://slicer.kitware.com/midas3/download?items=5767', 'FA.nrrd', slicer.util.loadVolume),
-    #     )
-    #
-    # for url,name,loader in downloads:
-    #   filePath = slicer.app.temporaryPath + '/' + name
-    #   if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
-    #     print('Requesting download %s from %s...\n' % (name, url))
-    #     urllib.urlretrieve(url, filePath)
-    #   if loader:
-    #     print('Loading %s...\n' % (name,))
-    #     loader(filePath)
-    # self.delayDisplay('Finished with download and loading\n')
+    downloads = (
+        ('http://slicer.kitware.com/midas3/download?items=5767', 'FA.nrrd', slicer.util.loadVolume),
+        )
+
+    for url,name,loader in downloads:
+      filePath = slicer.app.temporaryPath + '/' + name
+      if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
+        print('Requesting download %s from %s...\n' % (name, url))
+        urllib.urlretrieve(url, filePath)
+      if loader:
+        print('Loading %s...\n' % (name,))
+        loader(filePath)
+    self.delayDisplay('Finished with download and loading\n')
 
     try:
-      path = "/scratch/WaistCircumference/2AbdPelvis5.nrrd"
       widget = slicer.modules.WaistCircumferenceWidget
-      widget.logic.loadImage(path)
-      pattern = widget.logic.getNodePatternFromPath(path)
+      widget.logic.loadImage(filePath)
+      pattern = widget.logic.getNodePatternFromPath(filePath)
       masterVolumeNode = slicer.util.getNode(pattern=pattern)
       self.assertTrue( widget.logic.hasImageData(masterVolumeNode) )
       self.delayDisplay('Test master volume image loaded')
